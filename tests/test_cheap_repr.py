@@ -137,8 +137,8 @@ class TestCheapRepr(TestCaseWithUtils):
     def test_sets(self):
         self.assert_usual_repr(set())
         self.assert_usual_repr(frozenset())
-        self.assert_usual_repr({1, 2, 3})
-        self.assert_usual_repr(frozenset({1, 2, 3}))
+        self.assert_usual_repr(set([1, 2, 3]))
+        self.assert_usual_repr(frozenset([1, 2, 3]))
         self.assert_cheap_repr(set(range(10)),
                                'set([0, 1, 2, 3, 4, 5, ...])' if PY2 else
                                '{0, 1, 2, 3, 4, 5, ...}')
@@ -172,9 +172,9 @@ class TestCheapRepr(TestCaseWithUtils):
         d.update({1: 2, 2: 3, 3: 4})
         self.assert_usual_repr(d)
         d.update(dict((x, x * 2) for x in range(10)))
-        self.assertIn(cheap_repr(d),
-                      ("defaultdict(%r, {0: 0, 1: 2, 2: 4, 3: 6, ...})" % int,
-                       "defaultdict(%r, {1: 2, 2: 4, 3: 6, 0: 0, ...})" % int))
+        self.assertTrue(cheap_repr(d) in
+                        ("defaultdict(%r, {0: 0, 1: 2, 2: 4, 3: 6, ...})" % int,
+                         "defaultdict(%r, {1: 2, 2: 4, 3: 6, 0: 0, ...})" % int))
 
     def test_deque(self):
         self.assert_usual_repr(deque())
@@ -294,8 +294,8 @@ class TestCheapRepr(TestCaseWithUtils):
 
     def test_exceptions(self):
         with temp_attrs(cheap_repr, 'raise_exceptions', True):
-            with self.assertRaises(ValueError):
-                cheap_repr(ErrorClass(True))
+            self.assertRaises(ValueError,
+                              lambda: cheap_repr(ErrorClass(True)))
 
         for C in [ErrorClass, OldStyleErrorClass]:
             name = C.__name__
@@ -324,8 +324,7 @@ class TestCheapRepr(TestCaseWithUtils):
 
         bad_repr.raise_exceptions = True
 
-        with self.assertRaises(TypeError):
-            cheap_repr(T())
+        self.assertRaises(TypeError, lambda: cheap_repr(T()))
 
         class X(object):
             def __repr__(self):
@@ -338,8 +337,7 @@ class TestCheapRepr(TestCaseWithUtils):
         raise_exceptions_from_default_repr()
 
         for C in [X, Y]:
-            with self.assertRaises(IOError):
-                cheap_repr(C())
+            self.assertRaises(IOError, lambda: cheap_repr(C()))
 
     def test_default_too_long(self):
         self.assert_usual_repr(DirectRepr('hello'))

@@ -18,7 +18,7 @@ from collections import defaultdict, deque
 from importlib import import_module
 from itertools import islice
 
-PY2 = version_info.major == 2
+PY2 = version_info[0] == 2
 PY3 = not PY2
 
 
