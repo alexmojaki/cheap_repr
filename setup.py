@@ -23,7 +23,7 @@ install_requires += tests_require
 
 
 setup(name='cheap_repr',
-      version='0.1.0',
+      version='0.1.1',
       description='Better version of repr/reprlib for short, cheap string representations.',
       classifiers=[
           'License :: OSI Approved :: MIT License',
