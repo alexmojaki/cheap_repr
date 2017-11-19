@@ -5,12 +5,7 @@ from array import array
 from collections import defaultdict, deque, Set
 from sys import version_info
 
-from tests.utils import TestCaseWithUtils, temp_attrs
-
-try:
-    from collections import Counter
-except ImportError:
-    from counter import Counter
+from tests.utils import TestCaseWithUtils, temp_attrs, assert_unique, Counter
 
 try:
     from collections import OrderedDict
@@ -23,7 +18,7 @@ except ImportError:
     from chainmap import ChainMap
 
 from cheap_repr import basic_repr, register_repr, cheap_repr, PY2, PY3, ReprSuppressedWarning, find_repr_function, \
-    raise_exceptions_from_default_repr
+    raise_exceptions_from_default_repr, repr_registry
 
 
 class FakeExpensiveReprClass(object):
@@ -376,6 +371,10 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(RangeSet(0), 'RangeSet()')
         self.assert_cheap_repr(RangeSet(3), 'RangeSet({0, 1, 2})')
         self.assert_cheap_repr(RangeSet(10), 'RangeSet({0, 1, 2, 3, 4, 5, ...})')
+
+    def test_function_names_unique(self):
+        # Duplicate function names can lead to mistakes
+        assert_unique(f.__name__ for f in set(repr_registry.values()))
 
 
 if __name__ == '__main__':

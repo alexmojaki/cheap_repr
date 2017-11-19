@@ -300,7 +300,7 @@ def repr_str(x, helper):
 if PY3:
     @register_repr(bytes)
     @maxparts(60)
-    def repr_str(x, helper):
+    def repr_bytes(x, helper):
         return repr(helper.truncate(x, middle=b'...'))
 
 

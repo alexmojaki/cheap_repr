@@ -3,6 +3,11 @@ from contextlib import contextmanager
 from unittest import TestCase
 
 try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
+
+try:
     from unittest import skip, skipUnless
 except ImportError:
     def skip(_f):
@@ -41,3 +46,11 @@ class TestCaseWithUtils(TestCase):
             self.assertEqual(warning_list[0].category, category)
             self.assertEqual(str(warning_list[0].message), message)
             return result
+
+
+def assert_unique(items):
+    counts = Counter(items)
+    dups = [k for k, v in counts.items()
+            if v > 1]
+    if dups:
+        raise ValueError('Duplicates: %s' % dups)
