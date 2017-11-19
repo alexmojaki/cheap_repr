@@ -9,7 +9,7 @@ def safe_qualname(cls):
     if not result:
         try:
             result = qualname(cls)
-        except (AttributeError, IOError):
+        except (AttributeError, IOError, SyntaxError):
             result = cls.__name__
         if '<locals>' not in result:
             _safe_qualname_cache[cls] = result
