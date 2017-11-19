@@ -19,11 +19,9 @@ if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
     tests_require += ['numpy',
                       'Django']
 
-install_requires += tests_require
-
 
 setup(name='cheap_repr',
-      version='0.1.1',
+      version='0.1.2',
       description='Better version of repr/reprlib for short, cheap string representations.',
       classifiers=[
           'License :: OSI Approved :: MIT License',
