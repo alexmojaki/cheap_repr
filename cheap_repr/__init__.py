@@ -6,8 +6,6 @@ standard_library.install_aliases()
 
 import collections
 from sys import version_info
-from types import FunctionType
-from typing import Dict
 
 from future.utils import iteritems
 
@@ -39,7 +37,7 @@ class ReprSuppressedWarning(Warning):
     """
 
 
-repr_registry = {}  # type: Dict[type, FunctionType]
+repr_registry = {}
 
 
 def try_register_repr(module_name, class_name):

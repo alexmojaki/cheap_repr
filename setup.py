@@ -10,9 +10,6 @@ tests_require = []
 if version_info[0] == 2:
     tests_require += ['chainmap']
 
-if version_info[:2] < (3, 5):
-    install_requires += ['typing']
-
 if version_info[:2] == (2, 6):
     install_requires += ['importlib']
     tests_require += ['ordereddict',
