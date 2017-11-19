@@ -1,6 +1,8 @@
 cheap_repr
 ==========
 
+[![Join the chat at https://gitter.im/cheap_repr/Lobby](https://badges.gitter.im/cheap_repr/Lobby.svg)](https://gitter.im/cheap_repr/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This library provides short, fast, configurable string representations, and an easy API for registering your own. It's an improvement of the standard library module `reprlib` (`repr` in Python 2).
 
 Just use the `cheap_repr` function instead of `repr`:
