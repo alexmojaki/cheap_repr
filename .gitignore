@@ -2,3 +2,5 @@
 .tox
 *.egg-info
 *.pyc
+build
+dist

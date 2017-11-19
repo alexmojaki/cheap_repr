@@ -5,17 +5,24 @@ from setuptools import setup
 install_requires = ['qualname',
                     'future']
 
-tests_require = ['numpy',
-                 'Django']
+tests_require = []
 
 if version_info[0] == 2:
-    install_requires += ['typing']
     tests_require += ['chainmap']
+
+if version_info[:2] < (3, 5):
+    install_requires += ['typing']
 
 if version_info[:2] == (2, 6):
     install_requires += ['importlib']
     tests_require += ['ordereddict',
                       'counter']
+
+if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
+    tests_require += ['numpy',
+                      'Django']
+
+install_requires += tests_require
 
 
 setup(name='cheap_repr',

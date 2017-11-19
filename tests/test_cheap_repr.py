@@ -3,8 +3,7 @@ import re
 import unittest
 from array import array
 from collections import defaultdict, deque, Set
-
-import numpy
+from sys import version_info
 
 from tests.utils import TestCaseWithUtils, temp_attrs
 
@@ -25,12 +24,6 @@ except ImportError:
 
 from cheap_repr import basic_repr, register_repr, cheap_repr, PY2, PY3, ReprSuppressedWarning, find_repr_function, \
     raise_exceptions_from_default_repr
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
-import django
-
-django.setup()
-from django.contrib.contenttypes.models import ContentType
 
 
 class FakeExpensiveReprClass(object):
@@ -179,7 +172,9 @@ class TestCheapRepr(TestCaseWithUtils):
         d.update({1: 2, 2: 3, 3: 4})
         self.assert_usual_repr(d)
         d.update(dict((x, x * 2) for x in range(10)))
-        self.assert_cheap_repr(d, "defaultdict(<class 'int'>, {0: 0, 1: 2, 2: 4, 3: 6, ...})")
+        self.assertIn(cheap_repr(d),
+                      ("defaultdict(%r, {0: 0, 1: 2, 2: 4, 3: 6, ...})" % int,
+                       "defaultdict(%r, {1: 2, 2: 4, 3: 6, 0: 0, ...})" % int))
 
     def test_deque(self):
         self.assert_usual_repr(deque())
@@ -204,17 +199,30 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(array('l', range(10)),
                                "array('l', [0, 1, 2, 3, 4, ...])")
 
-    def test_numpy_array(self):
-        self.assert_usual_repr(numpy.array([]))
-        self.assert_usual_repr(numpy.array([1, 2, 3, 4, 5]))
-        self.assert_cheap_repr(numpy.array(range(10)),
-                               'array([0, 1, 2, 3, 4, 5, ...])')
+    if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
+        def test_numpy_array(self):
+            import numpy
+
+            self.assert_usual_repr(numpy.array([]))
+            self.assert_usual_repr(numpy.array([1, 2, 3, 4, 5]))
+            self.assert_cheap_repr(numpy.array(range(10)),
+                                   'array([0, 1, 2, 3, 4, 5, ...])')
+
+        def test_django_queryset(self):
+            os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
+            import django
+
+            django.setup()
+            from django.contrib.contenttypes.models import ContentType
+            self.assert_cheap_repr(ContentType.objects.all(),
+                                   '<QuerySet instance of ContentType at 0xXXX>')
 
     def test_bytes(self):
         self.assert_usual_repr(b'')
         self.assert_usual_repr(b'123')
         self.assert_cheap_repr(b'abc' * 50,
-                               "b'abcabcabcabcabcabcabcabcabca...bcabcabcabcabcabcabcabcabcabc'")
+                               "b'abcabcabcabcabcabcabcabcabca...bcabcabcabcabcabcabcabcabcabc'"
+                               .lstrip('b' if PY2 else ''))
 
     def test_str(self):
         self.assert_usual_repr('')
@@ -223,10 +231,6 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_usual_repr('123')
         self.assert_cheap_repr('abc' * 50,
                                "'abcabcabcabcabcabcabcabcabca...bcabcabcabcabcabcabcabcabcabc'")
-
-    def test_django_queryset(self):
-        self.assert_cheap_repr(ContentType.objects.all(),
-                               '<QuerySet instance of ContentType at 0xXXX>')
 
     def test_inheritance(self):
         class A(object):
@@ -296,10 +300,13 @@ class TestCheapRepr(TestCaseWithUtils):
         for C in [ErrorClass, OldStyleErrorClass]:
             name = C.__name__
             self.assert_usual_repr(C())
+            warning_message = "Exception 'ValueError' in repr_object for object of type %s. " \
+                              "The repr has been suppressed for this type." % name
+            if PY2 and C is OldStyleErrorClass:
+                warning_message = warning_message.replace('repr_object', 'repr')
             self.assert_cheap_repr_warns(
                 C(True),
-                "Exception 'ValueError' in repr_object for object of type %s. "
-                "The repr has been suppressed for this type." % name,
+                warning_message,
                 '<%s instance at 0xXXX (exception in repr)>' % name,
             )
             self.assert_cheap_repr(C(), '<%s instance at 0xXXX (repr suppressed)>' % name)
