@@ -54,3 +54,7 @@ def assert_unique(items):
             if v > 1]
     if dups:
         raise ValueError('Duplicates: %s' % dups)
+
+
+class OldStyleClass:
+    pass

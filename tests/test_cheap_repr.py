@@ -5,7 +5,7 @@ from array import array
 from collections import defaultdict, deque, Set
 from sys import version_info
 
-from tests.utils import TestCaseWithUtils, temp_attrs, assert_unique, Counter, skipUnless
+from tests.utils import TestCaseWithUtils, temp_attrs, assert_unique, Counter, skipUnless, OldStyleClass
 
 try:
     from collections import OrderedDict
@@ -378,10 +378,7 @@ class TestCheapRepr(TestCaseWithUtils):
 
     @skipUnless(PY2, "Old style classes only exist in Python 2")
     def test_old_style_class(self):
-        class A:
-            pass
-
-        self.assert_cheap_repr(A, '<class test_cheap_repr.A at 0xXXX>')
+        self.assert_cheap_repr(OldStyleClass, '<class tests.utils.OldStyleClass at 0xXXX>')
 
 
 if __name__ == '__main__':
