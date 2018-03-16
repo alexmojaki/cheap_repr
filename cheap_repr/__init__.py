@@ -143,7 +143,7 @@ def cheap_repr(x, level=None):
     """
     if level is None:
         level = cheap_repr.max_level
-    x_cls = x.__class__
+    x_cls = getattr(x, '__class__', type(x))
     for cls in inspect.getmro(x_cls):
         if cls in suppressed_classes:
             return _basic_but('repr suppressed', x)
