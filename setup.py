@@ -17,7 +17,7 @@ if version_info[:2] == (2, 6):
 
 if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
     tests_require += ['numpy',
-                      'Django' + '<2' * version_info[0] == 2]
+                      'Django' + '<2' * (version_info[0] == 2)]
 
 
 setup(name='cheap_repr',
