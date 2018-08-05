@@ -355,6 +355,16 @@ def repr_ndarray(x, _helper):
         np.set_printoptions(**opts)
 
 
+@try_register_repr('pandas', 'DataFrame')
+def repr_DataFrame(df, _):
+    return df.to_string(max_rows=repr_DataFrame.max_rows,
+                        max_cols=repr_DataFrame.max_cols)
+
+
+repr_DataFrame.max_rows = 8
+repr_DataFrame.max_cols = 8
+
+
 @try_register_repr('django.db.models', 'QuerySet')
 def repr_QuerySet(x, _):
     try:
