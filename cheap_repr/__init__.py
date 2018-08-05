@@ -311,11 +311,38 @@ def repr_int(x, helper):
     return helper.truncate(repr(x))
 
 
-@try_register_repr('numpy.core.multiarray', 'ndarray')
-def repr_ndarray(x, helper):
-    if len(x) == 0:
-        return repr(x)
-    return helper.repr_iterable(x, 'array([', '])')
+@try_register_repr('numpy', 'ndarray')
+def repr_ndarray(x, _helper):
+    # noinspection PyPackageRequirements
+    import numpy as np
+
+    dims = len(x.shape)
+    if (
+            # Too many dimensions to be concise
+            dims > 6 or
+            # There's a bug with array_repr and matrices
+            isinstance(x, np.matrix) and np.lib.NumpyVersion(np.__version__) < '1.14.0' or
+            # and with masked arrays...
+            isinstance(x, np.ma.MaskedArray)
+
+    ):
+        name = type_name(x)
+        if name == 'ndarray':
+            name = 'array'
+        return '%s(%r, shape=%r)' % (name, x.dtype, x.shape)
+
+    edgeitems = repr_ndarray.maxparts // 2
+    if dims == 3:
+        edgeitems = min(edgeitems, 2)
+    elif dims > 3:
+        edgeitems = 1
+
+    opts = np.get_printoptions()
+    try:
+        np.set_printoptions(threshold=repr_ndarray.maxparts, edgeitems=edgeitems)
+        return np.array_repr(x)
+    finally:
+        np.set_printoptions(**opts)
 
 
 @try_register_repr('django.db.models', 'QuerySet')

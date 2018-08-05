@@ -201,7 +201,82 @@ class TestCheapRepr(TestCaseWithUtils):
             self.assert_usual_repr(numpy.array([]))
             self.assert_usual_repr(numpy.array([1, 2, 3, 4, 5]))
             self.assert_cheap_repr(numpy.array(range(10)),
-                                   'array([0, 1, 2, 3, 4, 5, ...])')
+                                   'array([0, 1, 2, ..., 7, 8, 9])')
+
+            self.assert_cheap_repr(numpy.arange(100).reshape(10, 10),
+                                   """\
+array([[ 0,  1,  2, ...,  7,  8,  9],
+       [10, 11, 12, ..., 17, 18, 19],
+       [20, 21, 22, ..., 27, 28, 29],
+       ...,
+       [70, 71, 72, ..., 77, 78, 79],
+       [80, 81, 82, ..., 87, 88, 89],
+       [90, 91, 92, ..., 97, 98, 99]])""")
+
+            self.assert_cheap_repr(numpy.arange(1000).reshape(10, 10, 10),
+                                   """\
+array([[[  0,   1, ...,   8,   9],
+        [ 10,  11, ...,  18,  19],
+        ...,
+        [ 80,  81, ...,  88,  89],
+        [ 90,  91, ...,  98,  99]],
+
+       [[100, 101, ..., 108, 109],
+        [110, 111, ..., 118, 119],
+        ...,
+        [180, 181, ..., 188, 189],
+        [190, 191, ..., 198, 199]],
+
+       ...,
+
+       [[800, 801, ..., 808, 809],
+        [810, 811, ..., 818, 819],
+        ...,
+        [880, 881, ..., 888, 889],
+        [890, 891, ..., 898, 899]],
+
+       [[900, 901, ..., 908, 909],
+        [910, 911, ..., 918, 919],
+        ...,
+        [980, 981, ..., 988, 989],
+        [990, 991, ..., 998, 999]]])""")
+
+            self.assert_cheap_repr(numpy.arange(10000).reshape(10, 10, 10, 10),
+                                   """\
+array([[[[   0, ...,    9],
+         ...,
+         [  90, ...,   99]],
+
+        ...,
+
+        [[ 900, ...,  909],
+         ...,
+         [ 990, ...,  999]]],
+
+
+       ...,
+
+
+       [[[9000, ..., 9009],
+         ...,
+         [9090, ..., 9099]],
+
+        ...,
+
+        [[9900, ..., 9909],
+         ...,
+         [9990, ..., 9999]]]])""")
+
+            self.assert_cheap_repr(numpy.arange(128).reshape(2, 2, 2, 2, 2, 2, 2),
+                                   "array(dtype('int64'), shape=(2, 2, 2, 2, 2, 2, 2))")
+
+            self.assert_cheap_repr(numpy.ma.array([1, 2, 3], mask=[0, 1, 0]),
+                                   "MaskedArray(dtype('int64'), shape=(3,))")
+
+            self.assert_cheap_repr(numpy.matrix([[1, 2], [3, 4]]),
+                                   """\
+matrix([[1, 2],
+        [3, 4]])""")
 
         def test_django_queryset(self):
             os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
