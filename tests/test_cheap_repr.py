@@ -277,12 +277,14 @@ matrix([[1, 2],
             self.assert_cheap_repr(ContentType.objects.all(),
                                    '<QuerySet instance of ContentType at 0xXXX>')
 
-    def test_dataframe(self):
-        # noinspection PyPackageRequirements
-        import pandas
-        df = pandas.DataFrame({k: range(100) for k in 'abcdefghijkl'}).set_index(['a', 'b'])
-        self.assert_cheap_repr(df,
-                               """\
+        def test_pandas(self):
+            # noinspection PyPackageRequirements
+            import pandas
+            df = pandas.DataFrame(
+                dict((k, range(100)) for k in 'abcdefghijkl')
+            ).set_index(['a', 'b'])
+            self.assert_cheap_repr(df,
+                                   """\
         c   d   e   f ...   i   j   k   l
 a  b                  ...
 0  0    0   0   0   0 ...   0   0   0   0
