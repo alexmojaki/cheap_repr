@@ -8,6 +8,7 @@ python:
   - 3.5
   - 3.6
 script:
+  - pip uninstall numpy
   - python setup.py test
 notifications:
   email: false
