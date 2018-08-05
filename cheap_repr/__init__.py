@@ -101,6 +101,16 @@ def basic_repr(x, *_):
     return '<%s instance at %#x>' % (type_name(x), id(x))
 
 
+@try_register_repr('importlib.machinery', 'ModuleSpec')
+def normal_repr(x, *_):
+    """
+    Register this with a class to indicate that its own
+    __repr__ method is already fine. This prevents it from
+    being supressed when its output is a bit long.
+    """
+    return repr(x)
+
+
 suppressed_classes = set()
 
 
@@ -405,6 +415,13 @@ def repr_defaultdict(x, helper):
     return '{0}({1}, {2})'.format(type_name(x),
                                   x.default_factory,
                                   repr_dict(x, helper))
+
+
+@register_repr(type(copyright))
+def repr_Printer(x, _helper):
+    contents = repr(x)
+    return '{0}({1})'.format(type_name(x),
+                             cheap_repr(contents))
 
 
 if PY3:
