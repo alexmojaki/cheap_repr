@@ -17,6 +17,7 @@ if version_info[:2] == (2, 6):
 
 if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
     tests_require += ['numpy>=1.15.0',
+                      'pandas',
                       'Django' + '<2' * (version_info[:2] <= (3, 4))]
 
 
