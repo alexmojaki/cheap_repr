@@ -84,9 +84,11 @@ class TestCheapRepr(TestCaseWithUtils):
     maxDiff = None
 
     def assert_cheap_repr(self, x, expected_repr):
-        self.assertEqual(
-            re.sub(r'0x[0-9a-f]+', '0xXXX', cheap_repr(x)),
-            expected_repr)
+        actual = cheap_repr(x)
+        actual = re.sub(r'0x[0-9a-f]+', '0xXXX', actual)
+        actual = re.sub('\\s+\n', '\n', actual)
+        actual = re.sub('\n\n', '\n', actual)
+        self.assertEqual(actual, expected_repr)
 
     def assert_usual_repr(self, x):
         self.assert_cheap_repr(x, repr(x))
@@ -220,21 +222,17 @@ array([[[  0,   1, ...,   8,   9],
         ...,
         [ 80,  81, ...,  88,  89],
         [ 90,  91, ...,  98,  99]],
-
        [[100, 101, ..., 108, 109],
         [110, 111, ..., 118, 119],
         ...,
         [180, 181, ..., 188, 189],
         [190, 191, ..., 198, 199]],
-
        ...,
-
        [[800, 801, ..., 808, 809],
         [810, 811, ..., 818, 819],
         ...,
         [880, 881, ..., 888, 889],
         [890, 891, ..., 898, 899]],
-
        [[900, 901, ..., 908, 909],
         [910, 911, ..., 918, 919],
         ...,
@@ -246,23 +244,15 @@ array([[[  0,   1, ...,   8,   9],
 array([[[[   0, ...,    9],
          ...,
          [  90, ...,   99]],
-
         ...,
-
         [[ 900, ...,  909],
          ...,
          [ 990, ...,  999]]],
-
-
        ...,
-
-
        [[[9000, ..., 9009],
          ...,
          [9090, ..., 9099]],
-
         ...,
-
         [[9900, ..., 9909],
          ...,
          [9990, ..., 9999]]]])""")
