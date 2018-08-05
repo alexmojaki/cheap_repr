@@ -20,6 +20,9 @@ if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
                       'Django' + '<2' * (version_info[0] == 2)]
 
 
+print(version_info, tests_require)
+
+
 setup(name='cheap_repr',
       version='0.1.4',
       description='Better version of repr/reprlib for short, cheap string representations.',
