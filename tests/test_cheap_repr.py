@@ -281,8 +281,11 @@ matrix([[1, 2],
             # noinspection PyPackageRequirements
             import pandas as pd
 
-            self.assert_usual_repr(pd.DataFrame([[1, 2], [3, 4]]))
-            self.assert_usual_repr(pd.DataFrame([[1, 2], [3, 4]]).index)
+            df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+            self.assert_usual_repr(df)
+            self.assert_usual_repr(df.index)
+            self.assert_usual_repr(df.a)
+            self.assert_usual_repr(df.b)
 
             df = pd.DataFrame(
                 dict((k, range(100)) for k in 'abcdefghijkl')
@@ -300,7 +303,22 @@ a  b                  ...
 96 96  96  96  96  96 ...  96  96  96  96
 97 97  97  97  97  97 ...  97  97  97  97
 98 98  98  98  98  98 ...  98  98  98  98
-99 99  99  99  99  99 ...  99  99  99  99""")
+99 99  99  99  99  99 ...  99  99  99  99
+[100 rows x 10 columns]""")
+
+            self.assert_cheap_repr(df.c,
+                                   """\
+a   b
+0   0      0
+1   1      1
+2   2      2
+3   3      3
+          ..
+96  96    96
+97  97    97
+98  98    98
+99  99    99
+Name: c, Length: 100, dtype: int64""")
 
             self.assert_cheap_repr(df.index,
                                    """\

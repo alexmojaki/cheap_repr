@@ -358,12 +358,32 @@ def repr_ndarray(x, _helper):
 
 @try_register_repr('pandas', 'DataFrame')
 def repr_DataFrame(df, _):
-    return df.to_string(max_rows=repr_DataFrame.max_rows,
-                        max_cols=repr_DataFrame.max_cols)
+    from pandas import get_option
+
+    return df.to_string(
+        max_rows=repr_DataFrame.max_rows,
+        max_cols=repr_DataFrame.max_cols,
+        show_dimensions=get_option("display.show_dimensions"),
+    )
 
 
 repr_DataFrame.max_rows = 8
 repr_DataFrame.max_cols = 8
+
+
+@try_register_repr('pandas', 'Series')
+def repr_pandas_Series(series, _):
+    from pandas import get_option
+
+    return series.to_string(
+        max_rows=repr_pandas_Series.max_rows,
+        name=series.name,
+        dtype=series.dtype,
+        length=get_option("display.show_dimensions"),
+    )
+
+
+repr_pandas_Series.max_rows = 8
 
 
 def _repr_pandas_index_generic(index, helper, attrs, long_space=False):
