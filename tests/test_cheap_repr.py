@@ -80,6 +80,17 @@ class RangeSet(Set):
         return self.length
 
 
+class NormalClass(object):
+    def __init__(self, x):
+        self.x = x
+
+    def __repr__(self):
+        return repr(self.x)
+
+    def foo(self):
+        pass
+
+
 class TestCheapRepr(TestCaseWithUtils):
     maxDiff = None
 
@@ -105,6 +116,12 @@ class TestCheapRepr(TestCaseWithUtils):
         x = FakeExpensiveReprClass()
         self.assertEqual(repr(x), 'bad')
         self.assert_cheap_repr(x, r'<FakeExpensiveReprClass instance at 0xXXX>')
+
+    def test_bound_method(self):
+        self.assert_usual_repr(NormalClass('hello').foo)
+        self.assert_cheap_repr(
+            RangeSet(10).__len__,
+            '<bound method RangeSet.__len__ of RangeSet({0, 1, 2, 3, 4, 5, ...})>')
 
     def test_chain_map(self):
         self.assert_usual_repr(ChainMap({1: 2, 3: 4}, dict.fromkeys('abcd')))

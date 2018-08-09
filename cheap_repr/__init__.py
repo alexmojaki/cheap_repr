@@ -225,6 +225,13 @@ class ReprHelper(object):
         return s
 
 
+@register_repr(type(ReprHelper(0, None).truncate))
+def repr_bound_method(meth, _helper):
+    obj = meth.__self__
+    return '<bound method %s.%s of %s>' % (
+        type_name(obj), meth.__name__, cheap_repr(obj))
+
+
 @register_repr(tuple)
 def repr_tuple(x, helper):
     if len(x) == 1:
