@@ -97,8 +97,19 @@ def maxparts(num):
     return decorator
 
 
+@try_register_repr('pandas.core.internals', 'BlockManager')
 def basic_repr(x, *_):
     return '<%s instance at %#x>' % (type_name(x), id(x))
+
+
+@try_register_repr('importlib.machinery', 'ModuleSpec')
+def normal_repr(x, *_):
+    """
+    Register this with a class to indicate that its own
+    __repr__ method is already fine. This prevents it from
+    being supressed when its output is a bit long.
+    """
+    return repr(x)
 
 
 suppressed_classes = set()
@@ -214,6 +225,13 @@ class ReprHelper(object):
         return s
 
 
+@register_repr(type(ReprHelper(0, None).truncate))
+def repr_bound_method(meth, _helper):
+    obj = meth.__self__
+    return '<bound method %s.%s of %s>' % (
+        type_name(obj), meth.__name__, cheap_repr(obj))
+
+
 @register_repr(tuple)
 def repr_tuple(x, helper):
     if len(x) == 1:
@@ -311,11 +329,128 @@ def repr_int(x, helper):
     return helper.truncate(repr(x))
 
 
-@try_register_repr('numpy.core.multiarray', 'ndarray')
-def repr_ndarray(x, helper):
-    if len(x) == 0:
-        return repr(x)
-    return helper.repr_iterable(x, 'array([', '])')
+@try_register_repr('numpy', 'ndarray')
+def repr_ndarray(x, _helper):
+    # noinspection PyPackageRequirements
+    import numpy as np
+
+    dims = len(x.shape)
+    if (
+            # Too many dimensions to be concise
+            dims > 6 or
+            # There's a bug with array_repr and matrices
+            isinstance(x, np.matrix) and np.lib.NumpyVersion(np.__version__) < '1.14.0' or
+            # and with masked arrays...
+            isinstance(x, np.ma.MaskedArray)
+
+    ):
+        name = type_name(x)
+        if name == 'ndarray':
+            name = 'array'
+        return '%s(%r, shape=%r)' % (name, x.dtype, x.shape)
+
+    edgeitems = repr_ndarray.maxparts // 2
+    if dims == 3:
+        edgeitems = min(edgeitems, 2)
+    elif dims > 3:
+        edgeitems = 1
+
+    opts = np.get_printoptions()
+    try:
+        np.set_printoptions(threshold=repr_ndarray.maxparts, edgeitems=edgeitems)
+        return np.array_repr(x)
+    finally:
+        np.set_printoptions(**opts)
+
+
+@try_register_repr('pandas', 'DataFrame')
+def repr_DataFrame(df, _):
+    from pandas import get_option
+
+    return df.to_string(
+        max_rows=repr_DataFrame.max_rows,
+        max_cols=repr_DataFrame.max_cols,
+        show_dimensions=get_option("display.show_dimensions"),
+    )
+
+
+repr_DataFrame.max_rows = 8
+repr_DataFrame.max_cols = 8
+
+
+@try_register_repr('pandas', 'Series')
+def repr_pandas_Series(series, _):
+    from pandas import get_option
+
+    return series.to_string(
+        max_rows=repr_pandas_Series.max_rows,
+        name=series.name,
+        dtype=series.dtype,
+        length=get_option("display.show_dimensions"),
+    )
+
+
+repr_pandas_Series.max_rows = 8
+
+
+def _repr_pandas_index_generic(index, helper, attrs, long_space=False):
+    klass = index.__class__.__name__
+    if long_space:
+        space = '\n%s' % (' ' * (len(klass) + 1))
+    else:
+        space = ' '
+
+    prepr = (",%s" % space).join(
+        "%s=%s" % (k, cheap_repr(v, helper.level - 1))
+        for k, v in attrs)
+    return "%s(%s)" % (klass, prepr)
+
+
+@try_register_repr('pandas', 'Index')
+def repr_pandas_Index(index, helper):
+    attrs = [['dtype', index.dtype]]
+    if index.name is not None:
+        attrs.append(['name', index.name])
+    attrs.append(['length', len(index)])
+    return _repr_pandas_index_generic(index, helper, attrs)
+
+
+@try_register_repr('pandas', 'IntervalIndex')
+def repr_pandas_IntervalIndex(index, helper):
+    attrs = [['closed', index.closed]]
+    if index.name is not None:
+        attrs.append(['name', index.name])
+    attrs.append(['dtype', index.dtype])
+    return _repr_pandas_index_generic(index, helper, attrs, long_space=True)
+
+
+@try_register_repr('pandas', 'RangeIndex')
+def repr_pandas_RangeIndex(index, helper):
+    attrs = index._format_attrs()
+    return _repr_pandas_index_generic(index, helper, attrs)
+
+
+@try_register_repr('pandas', 'MultiIndex')
+def repr_pandas_MultiIndex(index, helper):
+    attrs = [
+        ('levels', index._levels),
+        ('labels', index._labels),
+        ('names', index.names),
+    ]
+    if index.sortorder is not None:
+        attrs.append(('sortorder', index.sortorder))
+    return _repr_pandas_index_generic(index, helper, attrs, long_space=True)
+
+
+@try_register_repr('pandas', 'CategoricalIndex')
+def repr_pandas_CategoricalIndex(index, helper):
+    attrs = [('categories', index.categories),
+             ('ordered', index.ordered)]
+    if index.name is not None:
+        attrs.append(['name', index.name])
+    attrs.append(['dtype', index.dtype.name])
+    attrs.append(['length', len(index)])
+    return _repr_pandas_index_generic(index, helper, attrs)
 
 
 @try_register_repr('django.db.models', 'QuerySet')
@@ -378,6 +513,13 @@ def repr_defaultdict(x, helper):
     return '{0}({1}, {2})'.format(type_name(x),
                                   x.default_factory,
                                   repr_dict(x, helper))
+
+
+@register_repr(type(copyright))
+def repr_Printer(x, _helper):
+    contents = repr(x)
+    return '{0}({1})'.format(type_name(x),
+                             cheap_repr(contents))
 
 
 if PY3:

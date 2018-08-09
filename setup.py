@@ -16,12 +16,16 @@ if version_info[:2] == (2, 6):
                       'counter']
 
 if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
-    tests_require += ['numpy',
-                      'Django' + '<2' * (version_info[0] == 2)]
+    tests_require += ['numpy>=1.15.0',
+                      'pandas',
+                      'Django' + '<2' * (version_info[:2] <= (3, 4))]
+
+
+print(version_info, tests_require)
 
 
 setup(name='cheap_repr',
-      version='0.1.4',
+      version='0.2.0',
       description='Better version of repr/reprlib for short, cheap string representations.',
       classifiers=[
           'License :: OSI Approved :: MIT License',
