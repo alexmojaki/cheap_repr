@@ -333,7 +333,7 @@ MultiIndex(levels=[Int64Index(dtype=dtype('int64'), name='a', length=100), Int64
                     {"strings": ["a", "b", "c", "d"], "values": values},
                     index=cats).index,
                 "CategoricalIndex(categories=Int64Index(dtype=dtype('int64'), "
-                "length=4), ordered=False, dtype=category, length=4)"
+                "length=4), ordered=False, dtype='category', length=4)"
             )
 
             self.assert_cheap_repr(pd.interval_range(start=0, end=5),

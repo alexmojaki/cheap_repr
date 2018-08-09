@@ -441,7 +441,7 @@ def repr_pandas_CategoricalIndex(index, helper):
              ('ordered', index.ordered)]
     if index.name is not None:
         attrs.append(['name', index.name])
-    attrs.append(['dtype', index.dtype])
+    attrs.append(['dtype', index.dtype.name])
     attrs.append(['length', len(index)])
     return _repr_pandas_index_generic(index, helper, attrs)
 
