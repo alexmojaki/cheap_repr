@@ -365,6 +365,66 @@ repr_DataFrame.max_rows = 8
 repr_DataFrame.max_cols = 8
 
 
+def _repr_pandas_index_generic(index, helper, attrs, long_space=False):
+    klass = index.__class__.__name__
+    if long_space:
+        space = '\n%s' % (' ' * (len(klass) + 1))
+    else:
+        space = ' '
+
+    prepr = (",%s" % space).join(
+        "%s=%s" % (k, cheap_repr(v, helper.level - 1))
+        for k, v in attrs)
+    return "%s(%s)" % (klass, prepr)
+
+
+@try_register_repr('pandas', 'Index')
+def repr_pandas_Index(index, helper):
+    attrs = [['dtype', index.dtype]]
+    if index.name is not None:
+        attrs.append(['name', index.name])
+    attrs.append(['length', len(index)])
+    return _repr_pandas_index_generic(index, helper, attrs)
+
+
+@try_register_repr('pandas', 'IntervalIndex')
+def repr_pandas_IntervalIndex(index, helper):
+    attrs = [['closed', index.closed]]
+    if index.name is not None:
+        attrs.append(['name', index.name])
+    attrs.append(['dtype', index.dtype])
+    return _repr_pandas_index_generic(index, helper, attrs, long_space=True)
+
+
+@try_register_repr('pandas', 'RangeIndex')
+def repr_pandas_RangeIndex(index, helper):
+    attrs = index._format_attrs()
+    return _repr_pandas_index_generic(index, helper, attrs)
+
+
+@try_register_repr('pandas', 'MultiIndex')
+def repr_pandas_MultiIndex(index, helper):
+    attrs = [
+        ('levels', index._levels),
+        ('labels', index._labels),
+        ('names', index.names),
+    ]
+    if index.sortorder is not None:
+        attrs.append(('sortorder', index.sortorder))
+    return _repr_pandas_index_generic(index, helper, attrs, long_space=True)
+
+
+@try_register_repr('pandas', 'CategoricalIndex')
+def repr_pandas_CategoricalIndex(index, helper):
+    attrs = [('categories', index.categories),
+             ('ordered', index.ordered)]
+    if index.name is not None:
+        attrs.append(['name', index.name])
+    attrs.append(['dtype', index.dtype])
+    attrs.append(['length', len(index)])
+    return _repr_pandas_index_generic(index, helper, attrs)
+
+
 @try_register_repr('django.db.models', 'QuerySet')
 def repr_QuerySet(x, _):
     try:

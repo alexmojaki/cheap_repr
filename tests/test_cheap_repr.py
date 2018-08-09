@@ -279,10 +279,15 @@ matrix([[1, 2],
 
         def test_pandas(self):
             # noinspection PyPackageRequirements
-            import pandas
-            df = pandas.DataFrame(
+            import pandas as pd
+
+            self.assert_usual_repr(pd.DataFrame([[1, 2], [3, 4]]))
+            self.assert_usual_repr(pd.DataFrame([[1, 2], [3, 4]]).index)
+
+            df = pd.DataFrame(
                 dict((k, range(100)) for k in 'abcdefghijkl')
             ).set_index(['a', 'b'])
+
             self.assert_cheap_repr(df,
                                    """\
         c   d   e   f ...   i   j   k   l
@@ -296,6 +301,27 @@ a  b                  ...
 97 97  97  97  97  97 ...  97  97  97  97
 98 98  98  98  98  98 ...  98  98  98  98
 99 99  99  99  99  99 ...  99  99  99  99""")
+
+            self.assert_cheap_repr(df.index,
+                                   """\
+MultiIndex(levels=[Int64Index(dtype=dtype('int64'), name='a', length=100), Int64Index(dtype=dtype('int64'), name='b', length=100)],
+           labels=[FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
+           names=['a', 'b'])""")
+
+            values = [4, 2, 3, 1]
+            cats = pd.Categorical([1, 2, 3, 4], categories=values)
+            self.assert_cheap_repr(
+                pd.DataFrame(
+                    {"strings": ["a", "b", "c", "d"], "values": values},
+                    index=cats).index,
+                "CategoricalIndex(categories=Int64Index(dtype=dtype('int64'), "
+                "length=4), ordered=False, dtype=category, length=4)"
+            )
+
+            self.assert_cheap_repr(pd.interval_range(start=0, end=5),
+                                   """\
+IntervalIndex(closed='right',
+              dtype=interval[int64])""")
 
     def test_bytes(self):
         self.assert_usual_repr(b'')
