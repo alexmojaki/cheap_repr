@@ -97,6 +97,7 @@ def maxparts(num):
     return decorator
 
 
+@try_register_repr('pandas.core.internals', 'BlockManager')
 def basic_repr(x, *_):
     return '<%s instance at %#x>' % (type_name(x), id(x))
 
