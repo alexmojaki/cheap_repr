@@ -62,11 +62,9 @@ def try_register_repr(module_name, class_name):
     """
     try:
         cls = getattr(import_module(module_name), class_name)
-        assert inspect.isclass(cls)
+        return register_repr(cls)
     except Exception:
         return lambda x: x
-    else:
-        return register_repr(cls)
 
 
 def register_repr(cls):
@@ -76,6 +74,9 @@ def register_repr(cls):
     The registered function will be used by cheap_repr when appropriate,
     and can be retrieved by find_repr_function(cls).
     """
+
+    assert inspect.isclass(cls), 'register_repr must be called with a class. ' \
+                                 'The type of %s is %s' % (cheap_repr(cls), type_name(cls))
 
     def decorator(func):
         repr_registry[cls] = func
