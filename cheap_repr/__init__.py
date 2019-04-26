@@ -62,11 +62,11 @@ def try_register_repr(module_name, class_name):
     """
     try:
         cls = getattr(import_module(module_name), class_name)
-    except (ImportError, AttributeError):
+        assert inspect.isclass(cls)
+    except Exception:
         return lambda x: x
     else:
-        if inspect.isclass(cls):
-            return register_repr(cls)
+        return register_repr(cls)
 
 
 def register_repr(cls):
