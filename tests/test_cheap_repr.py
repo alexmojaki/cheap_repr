@@ -126,27 +126,26 @@ class TestCheapRepr(TestCaseWithUtils):
     def test_chain_map(self):
         self.assert_usual_repr(ChainMap({1: 2, 3: 4}, dict.fromkeys('abcd')))
 
-        ex = ("ChainMap(["
+        ex = ("ChainMap("
               "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
               "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
+              "..., "
               "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "...])")
-        self.assert_cheap_repr(ChainMap([OrderedDict.fromkeys('1234567890', 0) for _ in range(10)]),
+              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...])"
+              ")")
+        self.assert_cheap_repr(ChainMap(*[OrderedDict.fromkeys('1234567890', 0) for _ in range(10)]),
                                ex)
 
     def test_list(self):
         self.assert_usual_repr([])
         self.assert_usual_repr([1, 2, 3])
-        self.assert_cheap_repr([1, 2, 3] * 10, '[1, 2, 3, 1, 2, 3, ...]')
+        self.assert_cheap_repr([1, 2, 3] * 10 + [4, 5, 6, 7], '[1, 2, 3, ..., 5, 6, 7]')
 
     def test_tuple(self):
         self.assert_usual_repr(())
         self.assert_usual_repr((1,))
         self.assert_usual_repr((1, 2, 3))
-        self.assert_cheap_repr((1, 2, 3) * 10, '(1, 2, 3, 1, 2, 3, ...)')
+        self.assert_cheap_repr((1, 2, 3) * 10 + (4, 5, 6, 7), '(1, 2, 3, ..., 5, 6, 7)')
 
     def test_sets(self):
         self.assert_usual_repr(set())
@@ -211,7 +210,7 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_usual_repr(array('l', []))
         self.assert_usual_repr(array('l', [1, 2, 3, 4, 5]))
         self.assert_cheap_repr(array('l', range(10)),
-                               "array('l', [0, 1, 2, 3, 4, ...])")
+                               "array('l', [0, 1, 2, ..., 8, 9])")
 
     if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
         def test_numpy_array(self):
@@ -494,14 +493,14 @@ IntervalIndex(closed='right',
 
     def test_maxparts(self):
         self.assert_cheap_repr(list(range(8)),
-                               '[0, 1, 2, 3, 4, 5, ...]')
+                               '[0, 1, 2, ..., 5, 6, 7]')
         self.assert_cheap_repr(list(range(20)),
-                               '[0, 1, 2, 3, 4, 5, ...]')
+                               '[0, 1, 2, ..., 17, 18, 19]')
         with temp_attrs(find_repr_function(list), 'maxparts', 10):
             self.assert_cheap_repr(list(range(8)),
                                    '[0, 1, 2, 3, 4, 5, 6, 7]')
             self.assert_cheap_repr(list(range(20)),
-                                   '[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...]')
+                                   '[0, 1, 2, 3, 4, ..., 15, 16, 17, 18, 19]')
 
     def test_recursive(self):
         lst = [1, 2, 3]

@@ -202,17 +202,29 @@ class ReprHelper(object):
         self.level = level
         self.func = func
 
-    def repr_iterable(self, iterable, left, right, length=None):
+    def repr_iterable(self, iterable, left, right, length=None, end=False):
         if length is None:
             length = len(iterable)
         if self.level <= 0 and length:
             s = '...'
         else:
             newlevel = self.level - 1
-            max_parts = self.func.maxparts
+            max_parts = original_maxparts = self.func.maxparts
+            truncate = length > max_parts
+
+            if end and truncate:
+                # Round up from half, e.g. 7 -> 4
+                max_parts -= max_parts // 2
+
             pieces = [cheap_repr(elem, newlevel) for elem in islice(iterable, max_parts)]
-            if length > max_parts:
+
+            if truncate:
                 pieces.append('...')
+
+                if end:
+                    max_parts = original_maxparts - max_parts
+                    pieces += [cheap_repr(elem, newlevel) for elem in iterable[-max_parts:]]
+
             s = ', '.join(pieces)
         return left + s + right
 
@@ -237,14 +249,14 @@ def repr_tuple(x, helper):
     if len(x) == 1:
         return '(%s,)' % cheap_repr(x[0], helper.level)
     else:
-        return helper.repr_iterable(x, '(', ')')
+        return helper.repr_iterable(x, '(', ')', end=True)
 
 
 @register_repr(list)
 @try_register_repr('UserList', 'UserList')
 @try_register_repr('collections', 'UserList')
 def repr_list(x, helper):
-    return helper.repr_iterable(x, '[', ']')
+    return helper.repr_iterable(x, '[', ']', end=True)
 
 
 @register_repr(array)
@@ -252,7 +264,7 @@ def repr_list(x, helper):
 def repr_array(x, helper):
     if not x:
         return repr(x)
-    return helper.repr_iterable(x, "array('%s', [" % x.typecode, '])')
+    return helper.repr_iterable(x, "array('%s', [" % x.typecode, '])', end=True)
 
 
 @register_repr(set)
@@ -466,7 +478,7 @@ def repr_QuerySet(x, _):
 @try_register_repr('chainmap', 'ChainMap')
 @maxparts(4)
 def repr_ChainMap(x, helper):
-    return helper.repr_iterable(x.maps, type_name(x) + '(', ')')
+    return helper.repr_iterable(x.maps, type_name(x) + '(', ')', end=True)
 
 
 @try_register_repr('collections', 'OrderedDict')
