@@ -309,17 +309,17 @@ matrix([[1, 2],
 
             self.assert_cheap_repr(df,
                                    """\
-        c   d   e   f ...   i   j   k   l
-a  b                  ...
-0  0    0   0   0   0 ...   0   0   0   0
-1  1    1   1   1   1 ...   1   1   1   1
-2  2    2   2   2   2 ...   2   2   2   2
-3  3    3   3   3   3 ...   3   3   3   3
-...    ..  ..  ..  .. ...  ..  ..  ..  ..
-96 96  96  96  96  96 ...  96  96  96  96
-97 97  97  97  97  97 ...  97  97  97  97
-98 98  98  98  98  98 ...  98  98  98  98
-99 99  99  99  99  99 ...  99  99  99  99
+        c   d   e   f  ...   i   j   k   l
+a  b                   ...
+0  0    0   0   0   0  ...   0   0   0   0
+1  1    1   1   1   1  ...   1   1   1   1
+2  2    2   2   2   2  ...   2   2   2   2
+3  3    3   3   3   3  ...   3   3   3   3
+...    ..  ..  ..  ..  ...  ..  ..  ..  ..
+96 96  96  96  96  96  ...  96  96  96  96
+97 97  97  97  97  97  ...  97  97  97  97
+98 98  98  98  98  98  ...  98  98  98  98
+99 99  99  99  99  99  ...  99  99  99  99
 [100 rows x 10 columns]""")
 
             self.assert_cheap_repr(df.c,
@@ -339,7 +339,7 @@ Name: c, Length: 100, dtype: int64""")
             self.assert_cheap_repr(df.index,
                                    """\
 MultiIndex(levels=[Int64Index(dtype=dtype('int64'), name='a', length=100), Int64Index(dtype=dtype('int64'), name='b', length=100)],
-           labels=[FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
+           codes=[FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
            names=['a', 'b'])""")
 
             values = [4, 2, 3, 1]

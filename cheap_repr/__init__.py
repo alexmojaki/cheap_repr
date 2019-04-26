@@ -444,11 +444,15 @@ def repr_pandas_RangeIndex(index, helper):
 
 @try_register_repr('pandas', 'MultiIndex')
 def repr_pandas_MultiIndex(index, helper):
-    attrs = [
-        ('levels', index._levels),
-        ('labels', index._labels),
-        ('names', index.names),
-    ]
+    attrs = [('levels', index._levels)]
+
+    try:
+        attrs.append(('labels', index._labels))
+    except AttributeError:
+        attrs.append(('codes', index.codes))
+
+    attrs.append(('names', index.names))
+
     if index.sortorder is not None:
         attrs.append(('sortorder', index.sortorder))
     return _repr_pandas_index_generic(index, helper, attrs, long_space=True)
