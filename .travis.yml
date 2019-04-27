@@ -15,6 +15,7 @@ install:
   - pip install tox-travis
 script:
   - tox
+  - pip install coveralls
   - coverage run --source cheap_repr setup.py test
   - coverage report -m
 
