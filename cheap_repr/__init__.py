@@ -203,7 +203,18 @@ class ReprHelper(object):
         self.level = level
         self.func = func
 
-    def repr_iterable(self, iterable, left, right, length=None, end=False):
+    def repr_iterable(self, iterable, left, right, end=False, length=None):
+        """
+        Produces a comma-separated representation of `iterable`, automatically handling nesting and iterables
+        that are too long, surrounded by `left` and `right`.
+        The number of items is at most `maxparts` (see the configuration section in the README).
+
+        Set `end=True` to include items from both the beginning and end, possibly leaving out items
+        in the middle. Only do this if `iterable` supports efficient slicing at the end, e.g. `iterable[-3:]`.
+
+        Provide the `length` parameter if `len(iterable)` doesn't work. Usually this is not needed.
+        """
+
         if length is None:
             length = len(iterable)
         if self.level <= 0 and length:
@@ -229,13 +240,17 @@ class ReprHelper(object):
             s = ', '.join(pieces)
         return left + s + right
 
-    def truncate(self, s, middle='...'):
+    def truncate(self, string, middle='...'):
+        """
+        Returns a version of `string` at most `maxparts` characters long,
+        with the middle replaced by `...` if necessary.
+        """
         max_parts = self.func.maxparts
-        if len(s) > max_parts:
+        if len(string) > max_parts:
             i = max(0, (max_parts - 3) // 2)
             j = max(0, max_parts - 3 - i)
-            s = s[:i] + middle + s[len(s) - j:]
-        return s
+            string = string[:i] + middle + string[len(string) - j:]
+        return string
 
 
 @register_repr(type(ReprHelper(0, None).truncate))
@@ -378,6 +393,9 @@ def repr_ndarray(x, _helper):
 
 @try_register_repr('pandas', 'DataFrame')
 def repr_DataFrame(df, _):
+    """
+    This function can be configured by setting `max_rows` or `max_cols` attributes.
+    """
     from pandas import get_option
 
     return df.to_string(
@@ -393,6 +411,9 @@ repr_DataFrame.max_cols = 8
 
 @try_register_repr('pandas', 'Series')
 def repr_pandas_Series(series, _):
+    """
+    This function can be configured by setting the `max_rows` attributes.
+    """
     from pandas import get_option
 
     return series.to_string(

@@ -1,7 +1,7 @@
 cheap_repr
 ==========
 
-[![Build Status](https://travis-ci.org/alexmojaki/cheap_repr.svg?branch=master)](https://travis-ci.org/alexmojaki/cheap_repr) [![Supports Python versions 2.6, 2.7, 3.3, 3.4, 3.5, and 3.6](https://img.shields.io/pypi/pyversions/cheap_repr.svg)](https://pypi.python.org/pypi/cheap_repr) [![Join the chat at https://gitter.im/cheap_repr/Lobby](https://badges.gitter.im/cheap_repr/Lobby.svg)](https://gitter.im/cheap_repr/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/alexmojaki/cheap_repr.svg?branch=master)](https://travis-ci.org/alexmojaki/cheap_repr) [![Coverage Status](https://coveralls.io/repos/github/alexmojaki/cheap_repr/badge.svg?branch=master)](https://coveralls.io/github/alexmojaki/cheap_repr?branch=master) [![Supports Python versions 2.7 and 3.4+, including PyPy](https://img.shields.io/pypi/pyversions/cheap_repr.svg)](https://pypi.python.org/pypi/cheap_repr) [![Join the chat at https://gitter.im/cheap_repr/Lobby](https://badges.gitter.im/cheap_repr/Lobby.svg)](https://gitter.im/cheap_repr/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This library provides short, fast, configurable string representations, and an easy API for registering your own. It's an improvement of the standard library module `reprlib` (`repr` in Python 2).
 
@@ -62,7 +62,12 @@ In general, write a function that takes two arguments `(x, helper)` and decorate
 
 The `helper` argument is an object with a couple of useful attributes and methods:
 
-- `repr_iterable(iterable, left, right)` produces a comma-separated representation of `iterable`, automatically handling nesting and iterables that are too long, surrounded by `left` and `right`. The number of items is limited to `func.maxparts` (see the configuration section below).
+- `repr_iterable(iterable, left, right, end=False, length=None)` produces a comma-separated representation of `iterable`, automatically handling nesting and iterables that are too long, surrounded by `left` and `right`. The number of items is limited to `func.maxparts` (see the configuration section below).
+
+   Set `end=True` to include items from both the beginning and end, possibly leaving out items
+ in the middle. Only do this if `iterable` supports efficient slicing at the end, e.g. `iterable[-3:]`.
+
+    Provide the `length` parameter if `len(iterable)` doesn't work. Usually this is not needed.
 - `truncate(string)` returns a version of `string` at most `func.maxparts` characters long, with the middle replaced by `...` if necessary.
 - `level` indicates how much nesting is still allowed in the result. If it's 0, return something minimal such as `[...]` to indicate that the original object is too deep to show all its contents. Otherwise, if you use `cheap_repr` on several items inside `x`, pass `helper.level - 1` as the second argument, e.g. `', '.join(cheap_repr(item, helper.level - 1) for item in x)`.
 
@@ -101,7 +106,7 @@ To configure a specific function, you set attributes on that function. To find t
 <function repr_my_class at 0x10f43d8c8>
 ```
 
-There are currently two attributes available to configure, but contributors and library writers are encouraged to add arbitrary attributes for their own functions. The first attribute is `raise_exceptions`, described in the previous section.
+For most functions, there are two attributes available to configure, but contributors and library writers are encouraged to add arbitrary attributes for their own functions. The first attribute is `raise_exceptions`, described in the previous section.
 
 ### maxparts
 
@@ -120,6 +125,11 @@ The other configurable attribute is `maxparts`. All registered repr functions ha
 >>> cheap_repr(MyClass([1, 2, 3, 4]))
 'MyClass([1, 2, 3, ...])'
 ```
+
+### pandas
+
+The functions for `DataFrame`s and `Series` from the `pandas` library don't use `maxparts`.
+For the `DataFrame` function there's `max_rows` and `max_cols`. For the `Series` function there's just `max_rows`.
 
 ### level and max_level
 
