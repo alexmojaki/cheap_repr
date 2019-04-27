@@ -9,8 +9,8 @@ Just use the `cheap_repr` function instead of `repr`:
 
 ```python
 >>> from cheap_repr import cheap_repr
->>> cheap_repr([1, 2, 3, 4, 5, 6, 7, 8])
-'[1, 2, 3, 4, 5, 6, ...]'
+>>> cheap_repr(list(range(100)))
+'[0, 1, 2, ..., 97, 98, 99]'
 ```
 
 `cheap_repr` knows how to handle many different types out of the box. You can register a function for any type, and pull requests to make these part of the library are welcome. If it doesn't know how to handle a particular type, the default `repr()` is used, possibly truncated:
