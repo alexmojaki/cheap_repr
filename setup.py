@@ -5,21 +5,15 @@ from setuptools import setup
 install_requires = ['qualname',
                     'future']
 
-tests_require = []
-
 if version_info[0] == 2:
-    tests_require += ['chainmap']
+    tests_require = ['Django<2',
+                     'chainmap']
+else:
+    tests_require = ['Django']
 
-if version_info[:2] == (2, 6):
-    install_requires += ['importlib']
-    tests_require += ['ordereddict',
-                      'counter']
-
-if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
-    tests_require += ['Django' + '<2' * (version_info[:2] <= (3, 4))]
-    if 'pypy' not in version.lower():
-        tests_require += ['numpy>=1.15.0',
-                          'pandas']
+if 'pypy' not in version.lower():
+    tests_require += ['numpy>=1.16.3',
+                      'pandas>=0.24.2']
 
 
 print(version_info, tests_require)
@@ -32,10 +26,8 @@ setup(name='cheap_repr',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.3',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',

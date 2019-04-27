@@ -212,151 +212,150 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(array('l', range(10)),
                                "array('l', [0, 1, 2, ..., 8, 9])")
 
-    if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
-        def test_django_queryset(self):
-            os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
-            import django
+    def test_django_queryset(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
+        import django
 
-            django.setup()
-            from django.contrib.contenttypes.models import ContentType
-            self.assert_cheap_repr(ContentType.objects.all(),
-                                   '<QuerySet instance of ContentType at 0xXXX>')
+        django.setup()
+        from django.contrib.contenttypes.models import ContentType
+        self.assert_cheap_repr(ContentType.objects.all(),
+                               '<QuerySet instance of ContentType at 0xXXX>')
 
-        if 'pypy' not in version.lower():
-            def test_numpy_array(self):
-                import numpy
+    if 'pypy' not in version.lower():
+        def test_numpy_array(self):
+            import numpy
 
-                self.assert_usual_repr(numpy.array([]))
-                self.assert_usual_repr(numpy.array([1, 2, 3, 4, 5]))
-                self.assert_cheap_repr(numpy.array(range(10)),
-                                       'array([0, 1, 2, ..., 7, 8, 9])')
+            self.assert_usual_repr(numpy.array([]))
+            self.assert_usual_repr(numpy.array([1, 2, 3, 4, 5]))
+            self.assert_cheap_repr(numpy.array(range(10)),
+                                   'array([0, 1, 2, ..., 7, 8, 9])')
 
-                self.assert_cheap_repr(numpy.arange(100).reshape(10, 10),
-                                       """\
-    array([[ 0,  1,  2, ...,  7,  8,  9],
-           [10, 11, 12, ..., 17, 18, 19],
-           [20, 21, 22, ..., 27, 28, 29],
-           ...,
-           [70, 71, 72, ..., 77, 78, 79],
-           [80, 81, 82, ..., 87, 88, 89],
-           [90, 91, 92, ..., 97, 98, 99]])""")
+            self.assert_cheap_repr(numpy.arange(100).reshape(10, 10),
+                                   """\
+array([[ 0,  1,  2, ...,  7,  8,  9],
+       [10, 11, 12, ..., 17, 18, 19],
+       [20, 21, 22, ..., 27, 28, 29],
+       ...,
+       [70, 71, 72, ..., 77, 78, 79],
+       [80, 81, 82, ..., 87, 88, 89],
+       [90, 91, 92, ..., 97, 98, 99]])""")
 
-                self.assert_cheap_repr(numpy.arange(1000).reshape(10, 10, 10),
-                                       """\
-    array([[[  0,   1, ...,   8,   9],
-            [ 10,  11, ...,  18,  19],
-            ...,
-            [ 80,  81, ...,  88,  89],
-            [ 90,  91, ...,  98,  99]],
-           [[100, 101, ..., 108, 109],
-            [110, 111, ..., 118, 119],
-            ...,
-            [180, 181, ..., 188, 189],
-            [190, 191, ..., 198, 199]],
-           ...,
-           [[800, 801, ..., 808, 809],
-            [810, 811, ..., 818, 819],
-            ...,
-            [880, 881, ..., 888, 889],
-            [890, 891, ..., 898, 899]],
-           [[900, 901, ..., 908, 909],
-            [910, 911, ..., 918, 919],
-            ...,
-            [980, 981, ..., 988, 989],
-            [990, 991, ..., 998, 999]]])""")
+            self.assert_cheap_repr(numpy.arange(1000).reshape(10, 10, 10),
+                                   """\
+array([[[  0,   1, ...,   8,   9],
+        [ 10,  11, ...,  18,  19],
+        ...,
+        [ 80,  81, ...,  88,  89],
+        [ 90,  91, ...,  98,  99]],
+       [[100, 101, ..., 108, 109],
+        [110, 111, ..., 118, 119],
+        ...,
+        [180, 181, ..., 188, 189],
+        [190, 191, ..., 198, 199]],
+       ...,
+       [[800, 801, ..., 808, 809],
+        [810, 811, ..., 818, 819],
+        ...,
+        [880, 881, ..., 888, 889],
+        [890, 891, ..., 898, 899]],
+       [[900, 901, ..., 908, 909],
+        [910, 911, ..., 918, 919],
+        ...,
+        [980, 981, ..., 988, 989],
+        [990, 991, ..., 998, 999]]])""")
 
-                self.assert_cheap_repr(numpy.arange(10000).reshape(10, 10, 10, 10),
-                                       """\
-    array([[[[   0, ...,    9],
-             ...,
-             [  90, ...,   99]],
-            ...,
-            [[ 900, ...,  909],
-             ...,
-             [ 990, ...,  999]]],
-           ...,
-           [[[9000, ..., 9009],
-             ...,
-             [9090, ..., 9099]],
-            ...,
-            [[9900, ..., 9909],
-             ...,
-             [9990, ..., 9999]]]])""")
+            self.assert_cheap_repr(numpy.arange(10000).reshape(10, 10, 10, 10),
+                                   """\
+array([[[[   0, ...,    9],
+         ...,
+         [  90, ...,   99]],
+        ...,
+        [[ 900, ...,  909],
+         ...,
+         [ 990, ...,  999]]],
+       ...,
+       [[[9000, ..., 9009],
+         ...,
+         [9090, ..., 9099]],
+        ...,
+        [[9900, ..., 9909],
+         ...,
+         [9990, ..., 9999]]]])""")
 
-                self.assert_cheap_repr(numpy.arange(128).reshape(2, 2, 2, 2, 2, 2, 2),
-                                       "array(dtype('int64'), shape=(2, 2, 2, 2, 2, 2, 2))")
+            self.assert_cheap_repr(numpy.arange(128).reshape(2, 2, 2, 2, 2, 2, 2),
+                                   "array(dtype('int64'), shape=(2, 2, 2, 2, 2, 2, 2))")
 
-                self.assert_cheap_repr(numpy.ma.array([1, 2, 3], mask=[0, 1, 0]),
-                                       "MaskedArray(dtype('int64'), shape=(3,))")
+            self.assert_cheap_repr(numpy.ma.array([1, 2, 3], mask=[0, 1, 0]),
+                                   "MaskedArray(dtype('int64'), shape=(3,))")
 
-                self.assert_cheap_repr(numpy.matrix([[1, 2], [3, 4]]),
-                                       """\
-    matrix([[1, 2],
-            [3, 4]])""")
+            self.assert_cheap_repr(numpy.matrix([[1, 2], [3, 4]]),
+                                   """\
+matrix([[1, 2],
+        [3, 4]])""")
 
-            def test_pandas(self):
-                # noinspection PyPackageRequirements
-                import pandas as pd
+        def test_pandas(self):
+            # noinspection PyPackageRequirements
+            import pandas as pd
 
-                df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
-                self.assert_usual_repr(df)
-                self.assert_usual_repr(df.index)
-                self.assert_usual_repr(df.a)
-                self.assert_usual_repr(df.b)
+            df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+            self.assert_usual_repr(df)
+            self.assert_usual_repr(df.index)
+            self.assert_usual_repr(df.a)
+            self.assert_usual_repr(df.b)
 
-                df = pd.DataFrame(
-                    dict((k, range(100)) for k in 'abcdefghijkl')
-                ).set_index(['a', 'b'])
+            df = pd.DataFrame(
+                dict((k, range(100)) for k in 'abcdefghijkl')
+            ).set_index(['a', 'b'])
 
-                self.assert_cheap_repr(df,
-                                       """\
-            c   d   e   f  ...   i   j   k   l
-    a  b                   ...
-    0  0    0   0   0   0  ...   0   0   0   0
-    1  1    1   1   1   1  ...   1   1   1   1
-    2  2    2   2   2   2  ...   2   2   2   2
-    3  3    3   3   3   3  ...   3   3   3   3
-    ...    ..  ..  ..  ..  ...  ..  ..  ..  ..
-    96 96  96  96  96  96  ...  96  96  96  96
-    97 97  97  97  97  97  ...  97  97  97  97
-    98 98  98  98  98  98  ...  98  98  98  98
-    99 99  99  99  99  99  ...  99  99  99  99
-    [100 rows x 10 columns]""")
+            self.assert_cheap_repr(df,
+                                   """\
+        c   d   e   f  ...   i   j   k   l
+a  b                   ...
+0  0    0   0   0   0  ...   0   0   0   0
+1  1    1   1   1   1  ...   1   1   1   1
+2  2    2   2   2   2  ...   2   2   2   2
+3  3    3   3   3   3  ...   3   3   3   3
+...    ..  ..  ..  ..  ...  ..  ..  ..  ..
+96 96  96  96  96  96  ...  96  96  96  96
+97 97  97  97  97  97  ...  97  97  97  97
+98 98  98  98  98  98  ...  98  98  98  98
+99 99  99  99  99  99  ...  99  99  99  99
+[100 rows x 10 columns]""")
 
-                self.assert_cheap_repr(df.c,
-                                       """\
-    a   b
-    0   0      0
-    1   1      1
-    2   2      2
-    3   3      3
-              ..
-    96  96    96
-    97  97    97
-    98  98    98
-    99  99    99
-    Name: c, Length: 100, dtype: int64""")
+            self.assert_cheap_repr(df.c,
+                                   """\
+a   b
+0   0      0
+1   1      1
+2   2      2
+3   3      3
+          ..
+96  96    96
+97  97    97
+98  98    98
+99  99    99
+Name: c, Length: 100, dtype: int64""")
 
-                self.assert_cheap_repr(df.index,
-                                       """\
-    MultiIndex(levels=[Int64Index(dtype=dtype('int64'), name='a', length=100), Int64Index(dtype=dtype('int64'), name='b', length=100)],
-               codes=[FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
-               names=['a', 'b'])""")
+            self.assert_cheap_repr(df.index,
+                                   """\
+MultiIndex(levels=[Int64Index(dtype=dtype('int64'), name='a', length=100), Int64Index(dtype=dtype('int64'), name='b', length=100)],
+           codes=[FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
+           names=['a', 'b'])""")
 
-                values = [4, 2, 3, 1]
-                cats = pd.Categorical([1, 2, 3, 4], categories=values)
-                self.assert_cheap_repr(
-                    pd.DataFrame(
-                        {"strings": ["a", "b", "c", "d"], "values": values},
-                        index=cats).index,
-                    "CategoricalIndex(categories=Int64Index(dtype=dtype('int64'), "
-                    "length=4), ordered=False, dtype='category', length=4)"
-                )
+            values = [4, 2, 3, 1]
+            cats = pd.Categorical([1, 2, 3, 4], categories=values)
+            self.assert_cheap_repr(
+                pd.DataFrame(
+                    {"strings": ["a", "b", "c", "d"], "values": values},
+                    index=cats).index,
+                "CategoricalIndex(categories=Int64Index(dtype=dtype('int64'), "
+                "length=4), ordered=False, dtype='category', length=4)"
+            )
 
-                self.assert_cheap_repr(pd.interval_range(start=0, end=5),
-                                       """\
-    IntervalIndex(closed='right',
-                  dtype=interval[int64])""")
+            self.assert_cheap_repr(pd.interval_range(start=0, end=5),
+                                   """\
+IntervalIndex(closed='right',
+              dtype=interval[int64])""")
 
     def test_bytes(self):
         self.assert_usual_repr(b'')
