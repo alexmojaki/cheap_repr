@@ -8,6 +8,8 @@ install_requires = ['qualname',
 if version_info[0] == 2:
     tests_require = ['Django<2',
                      'chainmap']
+elif version_info[:2] == (3, 4):
+    tests_require = ['Django<2.1']
 else:
     tests_require = ['Django']
 
