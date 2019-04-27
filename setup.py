@@ -1,4 +1,4 @@
-from sys import version_info
+from sys import version_info, version
 
 from setuptools import setup
 
@@ -16,9 +16,10 @@ if version_info[:2] == (2, 6):
                       'counter']
 
 if version_info[:2] == (2, 7) or version_info[:2] >= (3, 4):
-    tests_require += ['numpy>=1.15.0',
-                      'pandas',
-                      'Django' + '<2' * (version_info[:2] <= (3, 4))]
+    tests_require += ['Django' + '<2' * (version_info[:2] <= (3, 4))]
+    if 'pypy' not in version.lower():
+        tests_require += ['numpy>=1.15.0',
+                          'pandas']
 
 
 print(version_info, tests_require)
