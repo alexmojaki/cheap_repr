@@ -154,4 +154,6 @@ These things that can be configured globally:
 '<MyClass instance at 0x10f39dda0>'
 ```
 
+`normal_repr(x)` returns `repr(x)` - register it with a class to indicate that its own `__repr__` method is already fine. This prevents it from being supressed when its output is a bit long.
+
 `try_register_repr` is handy when you want to register a repr function for a class that may not exist, e.g. if the class is in a third party package that may not be installed. See the docstring for more details.
