@@ -2,8 +2,7 @@ from sys import version_info, version
 
 from setuptools import setup
 
-install_requires = ['qualname',
-                    'future']
+install_requires = ['qualname']
 
 if version_info[0] == 2:
     tests_require = ['Django<2',

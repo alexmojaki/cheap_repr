@@ -1,6 +1,17 @@
 import traceback
 
 from qualname import qualname
+from sys import version_info
+
+PY2 = version_info[0] == 2
+PY3 = not PY2
+
+if PY2:
+    def viewitems(d):
+        return d.viewitems()
+else:
+    def viewitems(d):
+        return d.items()
 
 
 def safe_qualname(cls):
