@@ -22,7 +22,7 @@ print(version_info, tests_require)
 
 
 setup(name='cheap_repr',
-      version='0.3.0',
+      version='0.3.1',
       description='Better version of repr/reprlib for short, cheap string representations.',
       classifiers=[
           'License :: OSI Approved :: MIT License',

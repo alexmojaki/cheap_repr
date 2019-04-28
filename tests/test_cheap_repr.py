@@ -3,7 +3,7 @@ import re
 import unittest
 from array import array
 from collections import defaultdict, deque, Set
-from sys import version_info, version
+from sys import version
 
 from tests.utils import TestCaseWithUtils, temp_attrs, assert_unique, Counter, skipUnless, OldStyleClass
 
