@@ -2,11 +2,12 @@ from sys import version_info, version
 
 from setuptools import setup
 
-install_requires = ['qualname']
+install_requires = []
 
 if version_info[0] == 2:
     tests_require = ['Django<2',
                      'chainmap']
+    install_requires += ['qualname']
 elif version_info[:2] == (3, 4):
     tests_require = ['Django<2.1']
 else:

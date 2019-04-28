@@ -1,7 +1,12 @@
 import traceback
 
-from qualname import qualname
 from sys import version_info
+
+try:
+    from qualname import qualname
+except ImportError:
+    def qualname(cls):
+        return cls.__qualname__
 
 PY2 = version_info[0] == 2
 PY3 = not PY2
