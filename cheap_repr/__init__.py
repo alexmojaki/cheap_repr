@@ -1,15 +1,6 @@
-from __future__ import print_function, division, absolute_import
-
-from future import standard_library
-
-standard_library.install_aliases()
-
 import collections
-from sys import version_info
 
-from future.utils import iteritems
-
-from cheap_repr.utils import type_name, exception_string, safe_qualname
+from cheap_repr.utils import type_name, exception_string, safe_qualname, viewitems, PY2, PY3
 
 import inspect
 import warnings
@@ -17,9 +8,6 @@ from array import array
 from collections import defaultdict, deque
 from importlib import import_module
 from itertools import islice
-
-PY2 = version_info[0] == 2
-PY3 = not PY2
 
 
 class ReprSuppressedWarning(Warning):
@@ -515,7 +503,7 @@ def repr_OrderedDict(x, helper):
     if not x:
         return repr(x)
     helper.level += 1
-    return helper.repr_iterable(iteritems(x), type_name(x) + '([', '])', length=len(x))
+    return helper.repr_iterable(viewitems(x), type_name(x) + '([', '])', length=len(x))
 
 
 @try_register_repr('collections', 'UserDict')
