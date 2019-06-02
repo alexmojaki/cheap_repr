@@ -2,12 +2,12 @@ from sys import version_info, version
 
 from setuptools import setup
 
-install_requires = ['qualname',
-                    'future']
+install_requires = []
 
 if version_info[0] == 2:
     tests_require = ['Django<2',
                      'chainmap']
+    install_requires += ['qualname']
 elif version_info[:2] == (3, 4):
     tests_require = ['Django<2.1']
 else:
@@ -22,7 +22,7 @@ print(version_info, tests_require)
 
 
 setup(name='cheap_repr',
-      version='0.3.0',
+      version='0.3.1',
       description='Better version of repr/reprlib for short, cheap string representations.',
       classifiers=[
           'License :: OSI Approved :: MIT License',
