@@ -13,7 +13,7 @@ elif version_info[:2] == (3, 4):
 else:
     tests_require = ['Django']
 
-if 'pypy' not in version.lower():
+if 'pypy' not in version.lower() and version_info[:2] < (3, 8):
     tests_require += ['numpy>=1.16.3',
                       'pandas>=0.24.2']
 

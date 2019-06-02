@@ -221,7 +221,7 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(ContentType.objects.all(),
                                '<QuerySet instance of ContentType at 0xXXX>')
 
-    if 'pypy' not in version.lower():
+    if 'pypy' not in version.lower() and version_info[:2] < (3, 8):
         def test_numpy_array(self):
             import numpy
 
