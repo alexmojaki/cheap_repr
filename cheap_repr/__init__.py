@@ -1,8 +1,5 @@
 import collections
 
-from future.utils import iteritems
-from future.builtins import zip
-
 from cheap_repr.utils import type_name, exception_string, safe_qualname, viewitems, PY2, PY3
 
 import inspect
@@ -11,6 +8,10 @@ from array import array
 from collections import defaultdict, deque
 from importlib import import_module
 from itertools import islice, zip_longest, repeat
+
+
+if PY2:
+    from itertools import izip as zip
 
 
 class ReprSuppressedWarning(Warning):
