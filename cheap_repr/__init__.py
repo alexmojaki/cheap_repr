@@ -7,11 +7,13 @@ import warnings
 from array import array
 from collections import defaultdict, deque
 from importlib import import_module
-from itertools import islice, zip_longest, repeat
+from itertools import islice, repeat
 
 
 if PY2:
-    from itertools import izip as zip
+    from itertools import izip as zip, izip_longest as zip_longest
+else:
+    from itertools import zip_longest
 
 
 class ReprSuppressedWarning(Warning):
