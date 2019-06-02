@@ -525,6 +525,35 @@ IntervalIndex(closed='right',
     def test_old_style_class(self):
         self.assert_cheap_repr(OldStyleClass, '<class tests.utils.OldStyleClass at 0xXXX>')
 
+    def test_target_length(self):
+        target = 100
+        lst = []
+        for i in range(100):
+            lst.append(i)
+            r = cheap_repr(lst, target_length=target)
+            usual = repr(lst)
+            assert (
+                    (r == usual and len(r) < target) ^
+                    ('...' in r and len(r) > target)
+            )
+
+        self.assertEqual(
+            cheap_repr(list(range(100)), target_length=target),
+            '[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, ..., 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]'
+        )
+
+        # Don't want to deal with ordering in older pythons
+        if version_info[:2] >= (3, 6):
+            self.assertEqual(
+                cheap_repr(set(range(100)), target_length=target),
+                '{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, ...}'
+            )
+
+            self.assertEqual(
+                cheap_repr({x: x * 2 for x in range(100)}, target_length=target),
+                '{0: 0, 1: 2, 2: 4, 3: 6, 4: 8, 5: 10, 6: 12, 7: 14, 8: 16, 9: 18, 10: 20, 11: 22, 12: 24, 13: 26, ...}',
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
