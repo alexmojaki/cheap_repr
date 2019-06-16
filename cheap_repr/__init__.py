@@ -7,7 +7,13 @@ import warnings
 from array import array
 from collections import defaultdict, deque
 from importlib import import_module
-from itertools import islice
+from itertools import islice, repeat
+
+
+if PY2:
+    from itertools import izip as zip, izip_longest as zip_longest
+else:
+    from itertools import zip_longest
 
 
 class ReprSuppressedWarning(Warning):
@@ -135,7 +141,7 @@ def raise_exceptions_from_default_repr():
     repr_object.raise_exceptions = True
 
 
-def cheap_repr(x, level=None):
+def cheap_repr(x, level=None, target_length=None):
     """
     Return a short, computationally inexpensive string
     representation of x, with approximately up to `level`
@@ -149,7 +155,7 @@ def cheap_repr(x, level=None):
             return _basic_but('repr suppressed', x)
         func = repr_registry.get(cls)
         if func:
-            helper = ReprHelper(level, func)
+            helper = ReprHelper(level, func, target_length)
             return _try_repr(func, x, helper)
 
     # Old-style classes in Python 2.
@@ -185,11 +191,12 @@ def _basic_but(message, x):
 
 
 class ReprHelper(object):
-    __slots__ = ('level', 'func')
+    __slots__ = ('level', 'func', 'target_length')
 
-    def __init__(self, level, func):
+    def __init__(self, level, func, target_length):
         self.level = level
         self.func = func
+        self.target_length = target_length
 
     def repr_iterable(self, iterable, left, right, end=False, length=None):
         """
@@ -211,19 +218,55 @@ class ReprHelper(object):
             newlevel = self.level - 1
             max_parts = original_maxparts = self.func.maxparts
             truncate = length > max_parts
+            target_length = self.target_length
 
-            if end and truncate:
-                # Round up from half, e.g. 7 -> 4
-                max_parts -= max_parts // 2
+            if target_length is None or not truncate:
+                if end and truncate:
+                    # Round up from half, e.g. 7 -> 4
+                    max_parts -= max_parts // 2
 
-            pieces = [cheap_repr(elem, newlevel) for elem in islice(iterable, max_parts)]
+                pieces = [cheap_repr(elem, newlevel) for elem in islice(iterable, max_parts)]
 
-            if truncate:
-                pieces.append('...')
+                if truncate:
+                    pieces.append('...')
+
+                    if end:
+                        max_parts = original_maxparts - max_parts
+
+                        pieces += [cheap_repr(elem, newlevel) for elem in iterable[-max_parts:]]
+
+            else:
+                pieces = []
+                right_pieces = []
+                total_length = 3 + len(left) + len(right)
 
                 if end:
-                    max_parts = original_maxparts - max_parts
-                    pieces += [cheap_repr(elem, newlevel) for elem in iterable[-max_parts:]]
+                    sentinel = object()
+
+                    def parts_gen():
+                        for left_part, right_part in zip_longest(
+                                iterable[:length - length // 2],
+                                islice(reversed(iterable), length // 2),
+                                fillvalue=sentinel,
+                        ):
+                            yield left_part, pieces
+                            if right_part is not sentinel:
+                                yield right_part, right_pieces
+
+                    parts = parts_gen()
+                else:
+                    parts = zip(iterable, repeat(pieces))
+
+                for i, (part, pieces_list) in enumerate(parts):
+                    r = cheap_repr(part, newlevel)
+                    pieces_list.append(r)
+                    total_length += len(r) + 2
+                    if max_parts <= i + 1 < length and total_length >= target_length:
+                        pieces_list.append('...')
+                        break
+
+                if end:
+                    pieces += right_pieces[::-1]
 
             s = ', '.join(pieces)
         return left + s + right
@@ -241,7 +284,7 @@ class ReprHelper(object):
         return string
 
 
-@register_repr(type(ReprHelper(0, None).truncate))
+@register_repr(type(ReprHelper(0, None, None).truncate))
 def repr_bound_method(meth, _helper):
     obj = meth.__self__
     return '<bound method %s.%s of %s>' % (
@@ -304,24 +347,26 @@ def repr_deque(x, helper):
     return helper.repr_iterable(x, 'deque([', '])')
 
 
+class _DirectRepr(str):
+    def __repr__(self):
+        return self
+
+
 @register_repr(dict)
 @maxparts(4)
 def repr_dict(x, helper):
-    n = len(x)
-    if n == 0:
-        return '{}'
-    if helper.level <= 0:
-        return '{...}'
     newlevel = helper.level - 1
-    pieces = []
-    for key in islice(x, repr_dict.maxparts):
-        keyrepr = cheap_repr(key, newlevel)
-        valrepr = cheap_repr(x[key], newlevel)
-        pieces.append('%s: %s' % (keyrepr, valrepr))
-    if n > repr_dict.maxparts:
-        pieces.append('...')
-    s = ', '.join(pieces)
-    return '{%s}' % (s,)
+
+    return helper.repr_iterable(
+        (
+            _DirectRepr('%s: %s' % (
+                cheap_repr(key, newlevel),
+                cheap_repr(x[key], newlevel),
+            ))
+            for key in x
+        ),
+        '{', '}', length=len(x),
+    )
 
 
 @try_register_repr('__builtin__', 'unicode')
