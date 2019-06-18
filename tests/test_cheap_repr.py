@@ -162,6 +162,9 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_usual_repr(d1)
         d2 = dict((x, x * 2) for x in range(10))
         self.assert_cheap_repr(d2, '{0: 0, 1: 2, 2: 4, 3: 6, ...}')
+        self.assert_cheap_repr(
+            {'a' * 100: 'b' * 100},
+            "{'aaaaaaaaaaaaaaaaaaaaaaaaaaaa...aaaaaaaaaaaaaaaaaaaaaaaaaaaaa': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbb...bbbbbbbbbbbbbbbbbbbbbbbbbbbbb'}")
 
         if PY3:
             self.assert_usual_repr({}.keys())

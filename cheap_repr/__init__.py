@@ -352,6 +352,9 @@ class _DirectRepr(str):
         return self
 
 
+register_repr(_DirectRepr)(normal_repr)
+
+
 @register_repr(dict)
 @maxparts(4)
 def repr_dict(x, helper):
