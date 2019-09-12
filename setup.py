@@ -8,15 +8,13 @@ if version_info[0] == 2:
     tests_require = ['Django<2',
                      'chainmap']
     install_requires += ['qualname']
-elif version_info[:2] == (3, 4):
-    tests_require = ['Django<2.1']
 elif version_info[:2] == (3, 5):
     tests_require = ['Django<3']
 else:
     tests_require = ['Django']
 
 if 'pypy' not in version.lower() and version_info[:2] < (3, 8):
-    if version_info[:2] <= (3, 4):
+    if version_info[0] == 2:
         tests_require += ['pandas>=0.24.2,<0.25']
         tests_require += ['numpy>=1.16.3,<1.17']
     else:
@@ -35,7 +33,6 @@ setup(name='cheap_repr',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
