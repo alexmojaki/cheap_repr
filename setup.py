@@ -10,13 +10,17 @@ if version_info[0] == 2:
     install_requires += ['qualname']
 elif version_info[:2] == (3, 4):
     tests_require = ['Django<2.1']
+elif version_info[:2] == (3, 5):
+    tests_require = ['Django<3']
 else:
     tests_require = ['Django']
 
 if 'pypy' not in version.lower() and version_info[:2] < (3, 8):
-    tests_require += ['numpy>=1.16.3',
-                      'pandas>=0.24.2']
-
+    tests_require += ['numpy>=1.16.3']
+    if version_info[:2] <= (3, 4):
+        tests_require += ['pandas>=0.24.2,<0.25']
+    else:
+        tests_require += ['pandas>=0.24.2']
 
 print(version_info, tests_require)
 
