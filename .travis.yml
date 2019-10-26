@@ -10,11 +10,14 @@ python:
   - pypy2.7-6.0
   - pypy3.5
 
+env:
+  global:
+    - COVERALLS_PARALLEL=true
+
 install:
-  - pip install tox-travis
-script:
-  - tox
   - pip install coveralls
+
+script:
   - coverage run --source cheap_repr setup.py test
   - coverage report -m
 
@@ -23,3 +26,4 @@ after_success:
 
 notifications:
   email: false
+  webhooks: https://coveralls.io/webhook
