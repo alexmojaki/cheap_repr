@@ -17,12 +17,12 @@ if 'pypy' not in version.lower():
     if version_info[0] == 2:
         tests_require += ['pandas>=0.24.2,<0.25']
         tests_require += ['numpy>=1.16.3,<1.17']
+    elif version_info[:2] == (3, 5):
+        tests_require += ['pandas>=0.24.2,<0.26']
+        tests_require += ['numpy>=1.16.3,<1.19']
     else:
         tests_require += ['pandas>=0.24.2']
-        if version_info[:2] == (3, 5):
-            tests_require += ['numpy>=1.16.3,<1.19']
-        else:
-            tests_require += ['numpy>=1.16.3']
+        tests_require += ['numpy>=1.16.3']
 
 print(version_info, tests_require)
 
