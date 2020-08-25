@@ -17,9 +17,10 @@ env:
 
 install:
   - pip install coveralls
+  - pip install .[tests]
 
 script:
-  - coverage run --source cheap_repr setup.py test
+  - coverage run --source cheap_repr pytest
   - coverage report -m
 
 after_success:
