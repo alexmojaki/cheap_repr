@@ -1,7 +1,3 @@
-import collections
-
-from cheap_repr.utils import type_name, exception_string, safe_qualname, viewitems, PY2, PY3
-
 import inspect
 import warnings
 from array import array
@@ -9,6 +5,7 @@ from collections import defaultdict, deque
 from importlib import import_module
 from itertools import islice, repeat
 
+from cheap_repr.utils import type_name, exception_string, safe_qualname, viewitems, PY2, PY3
 
 if PY2:
     from itertools import izip as zip, izip_longest as zip_longest
