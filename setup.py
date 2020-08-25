@@ -24,6 +24,8 @@ if 'pypy' not in version.lower():
         tests_require += ['pandas>=0.24.2']
         tests_require += ['numpy>=1.16.3']
 
+tests_require += ['pytest']
+
 print(version_info, tests_require)
 
 
