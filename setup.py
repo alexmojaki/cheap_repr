@@ -13,7 +13,7 @@ elif version_info[:2] == (3, 5):
 else:
     tests_require = ['Django']
 
-if 'pypy' not in version.lower() and version_info[:2] < (3, 8):
+if 'pypy' not in version.lower():
     if version_info[0] == 2:
         tests_require += ['pandas>=0.24.2,<0.25']
         tests_require += ['numpy>=1.16.3,<1.17']
@@ -37,6 +37,7 @@ setup(name='cheap_repr',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
           'Operating System :: OS Independent',
@@ -49,5 +50,6 @@ setup(name='cheap_repr',
       packages=['cheap_repr'],
       install_requires=install_requires,
       tests_require=tests_require,
+      extras_require={'tests': tests_require},
       test_suite='tests',
       zip_safe=False)
