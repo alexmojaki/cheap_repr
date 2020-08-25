@@ -20,7 +20,7 @@ install:
   - pip install .[tests]
 
 script:
-  - coverage run --source cheap_repr pytest
+  - coverage run --source cheap_repr -m pytest
   - coverage report -m
 
 after_success:
