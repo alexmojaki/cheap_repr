@@ -12,8 +12,10 @@ from itertools import islice, repeat
 
 if PY2:
     from itertools import izip as zip, izip_longest as zip_longest
+    from collections import Mapping, Set
 else:
     from itertools import zip_longest
+    from collections.abc import Mapping, Set
 
 
 class ReprSuppressedWarning(Warning):
@@ -334,7 +336,7 @@ def repr_frozenset(x, helper):
         return helper.repr_iterable(x, 'frozenset({', '})')
 
 
-@register_repr(collections.Set)
+@register_repr(Set)
 def repr_Set(x, helper):
     if not x:
         return '%s()' % type_name(x)
@@ -556,7 +558,7 @@ def repr_OrderedDict(x, helper):
 
 @try_register_repr('collections', 'UserDict')
 @try_register_repr('UserDict', 'UserDict')
-@register_repr(collections.Mapping)
+@register_repr(Mapping)
 @maxparts(5)
 def repr_Mapping(x, helper):
     if not x:
