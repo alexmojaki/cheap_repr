@@ -339,10 +339,17 @@ a   b
 99  99    99
 Name: c, Length: 100, dtype: int64""")
 
-            self.assert_cheap_repr(df.index,
-                                   """\
+            if version_info[:2] < (3, 6):
+                self.assert_cheap_repr(df.index,
+                                       """\
 MultiIndex(levels=[Int64Index(dtype=dtype('int64'), name='a', length=100), Int64Index(dtype=dtype('int64'), name='b', length=100)],
            codes=[FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), FrozenNDArray([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
+           names=['a', 'b'])""")
+            else:
+                self.assert_cheap_repr(df.index,
+                                       """\
+MultiIndex(levels=[Int64Index(dtype=dtype('int64'), length=100), Int64Index(dtype=dtype('int64'), length=100)],
+           codes=[array([ 0,  1,  2, ..., 97, 98, 99], dtype=int8), array([ 0,  1,  2, ..., 97, 98, 99], dtype=int8)],
            names=['a', 'b'])""")
 
             values = [4, 2, 3, 1]
