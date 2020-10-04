@@ -4,6 +4,7 @@ import unittest
 from array import array
 from collections import defaultdict, deque, Set
 from sys import version_info, version
+from unittest import skipIf
 
 from tests.utils import TestCaseWithUtils, temp_attrs, assert_unique, Counter, skipUnless, OldStyleClass
 
@@ -19,6 +20,8 @@ except ImportError:
 
 from cheap_repr import basic_repr, register_repr, cheap_repr, PY2, PY3, ReprSuppressedWarning, find_repr_function, \
     raise_exceptions_from_default_repr, repr_registry
+
+PYPY = 'pypy' in version.lower()
 
 
 class FakeExpensiveReprClass(object):
@@ -230,7 +233,7 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(ContentType.objects.all(),
                                '<QuerySet instance of ContentType at 0xXXX>')
 
-    if 'pypy' not in version.lower() and version_info[:2] < (3, 8):
+    if not PYPY and version_info[:2] < (3, 8):
         def test_numpy_array(self):
             import numpy
 
@@ -539,6 +542,7 @@ IntervalIndex(closed='right',
 
         self.assert_usual_repr(some_really_really_long_function_name, normalise=True)
 
+    @skipIf(PY2 and PYPY, "Not supported in pypy2")
     def test_repr_long_class_name(self):
         class some_really_really_long_class_name(object):
             pass
