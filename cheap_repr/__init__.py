@@ -114,6 +114,9 @@ suppressed_classes = set()
 @maxparts(60)
 def repr_object(x, helper):
     s = repr(x)
+    if type(x).__repr__ is object.__repr__:
+        return s
+
     if len(s) > cheap_repr.suppression_threshold:
         cls = x.__class__
         suppressed_classes.add(cls)

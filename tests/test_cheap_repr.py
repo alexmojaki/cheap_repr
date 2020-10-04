@@ -539,6 +539,12 @@ IntervalIndex(closed='right',
 
         self.assert_usual_repr(some_really_really_long_function_name, normalise=True)
 
+    def test_repr_long_class_name(self):
+        class some_really_really_long_class_name(object):
+            pass
+
+        self.assert_usual_repr(some_really_really_long_class_name(), normalise=True)
+
     def test_function_names_unique(self):
         # Duplicate function names can lead to mistakes
         assert_unique(f.__name__ for f in set(repr_registry.values()))
