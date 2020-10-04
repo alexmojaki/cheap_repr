@@ -94,15 +94,21 @@ class NormalClass(object):
 class TestCheapRepr(TestCaseWithUtils):
     maxDiff = None
 
+    def normalise_repr(self, string):
+        string = re.sub(r'0x[0-9a-f]+', '0xXXX', string)
+        string = re.sub('\\s+\n', '\n', string)
+        string = re.sub('\n\n', '\n', string)
+        return string
+
     def assert_cheap_repr(self, x, expected_repr):
-        actual = cheap_repr(x)
-        actual = re.sub(r'0x[0-9a-f]+', '0xXXX', actual)
-        actual = re.sub('\\s+\n', '\n', actual)
-        actual = re.sub('\n\n', '\n', actual)
+        actual = self.normalise_repr(cheap_repr(x))
         self.assertEqual(actual, expected_repr)
 
-    def assert_usual_repr(self, x):
-        self.assert_cheap_repr(x, repr(x))
+    def assert_usual_repr(self, x, normalise=False):
+        expected = repr(x)
+        if normalise:
+            expected = self.normalise_repr(expected)
+        self.assert_cheap_repr(x, expected)
 
     def assert_cheap_repr_evals(self, s):
         self.assert_cheap_repr(eval(s), s)
@@ -526,6 +532,12 @@ IntervalIndex(closed='right',
         self.assert_cheap_repr(RangeSet(0), 'RangeSet()')
         self.assert_cheap_repr(RangeSet(3), 'RangeSet({0, 1, 2})')
         self.assert_cheap_repr(RangeSet(10), 'RangeSet({0, 1, 2, 3, 4, 5, ...})')
+
+    def test_repr_function(self):
+        def some_really_really_long_function_name():
+            pass
+
+        self.assert_usual_repr(some_really_really_long_function_name, normalise=True)
 
     def test_function_names_unique(self):
         # Duplicate function names can lead to mistakes
