@@ -592,11 +592,16 @@ def repr_defaultdict(x, helper):
                                   repr_dict(x, helper))
 
 
-@register_repr(type(copyright))
 def repr_Printer(x, _helper):
     contents = repr(x)
     return '{0}({1})'.format(type_name(x),
                              cheap_repr(contents))
+
+
+try:
+    register_repr(type(copyright))
+except NameError:
+    pass
 
 
 if PY3:
