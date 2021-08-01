@@ -544,9 +544,10 @@ IntervalIndex(closed='right',
 
     def test_repr_function(self):
         def some_really_really_long_function_name():
-            pass
+            yield 3
 
         self.assert_usual_repr(some_really_really_long_function_name, normalise=True)
+        self.assert_usual_repr(some_really_really_long_function_name(), normalise=True)
 
     @skipIf(PY2 and PYPY, "Not supported in pypy2")
     def test_repr_long_class_name(self):
