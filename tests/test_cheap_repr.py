@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import unittest
 from array import array
 from collections import defaultdict, deque
@@ -376,11 +377,16 @@ MultiIndex(levels=[Int64Index(dtype=dtype('int64'), length=100), Int64Index(dtyp
                 "CategoricalIndex(categories=Int64Index(dtype=dtype('int64'), "
                 "length=4), ordered=False, dtype='category', length=4)"
             )
-
-            self.assert_cheap_repr(pd.interval_range(start=0, end=5),
-                                   """\
+            
+            if sys.version_info[:2] == (3, 7):
+                expected = """\
 IntervalIndex(closed='right',
-              dtype=interval[int64])""")
+              dtype=interval[int64, right])"""
+            else:
+                expected = """\
+IntervalIndex(closed='right',
+              dtype=interval[int64])"""
+            self.assert_cheap_repr(pd.interval_range(start=0, end=5), expected)
 
     def test_bytes(self):
         self.assert_usual_repr(b'')
