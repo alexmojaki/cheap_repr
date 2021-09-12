@@ -15,7 +15,8 @@ jobs:
     - name: run tests
       run: |
         pip install -U pip
-        pip install --upgrade coveralls asttokens pytest setuptools setuptools_scm pep517 .[tests]
+        pip install --upgrade coveralls asttokens pytest setuptools setuptools_scm pep517
+        pip install .[tests]
         coverage run --source cheap_repr -m pytest
         coverage report -m
     - name: Coveralls Python
