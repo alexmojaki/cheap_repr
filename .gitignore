@@ -5,3 +5,5 @@
 build
 dist
 .coverage
+
+/cheap_repr/version.py
