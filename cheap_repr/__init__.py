@@ -130,6 +130,7 @@ def basic_repr(x, *_):
 @try_register_repr('importlib.machinery', 'ModuleSpec')
 @register_repr(type(register_repr))
 @register_repr(type(_ for _ in []))
+@register_repr(type(inspect))
 def normal_repr(x, *_):
     """
     Register this with a class to indicate that its own
