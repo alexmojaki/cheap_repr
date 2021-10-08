@@ -231,6 +231,36 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(array('l', range(10)),
                                "array('l', [0, 1, 2, ..., 8, 9])")
 
+    def test_wrapt_objectproxy(self):
+
+        # No need to import wrapt, we recreate a tiny similar scenario.
+        class DemonstrateBug(object):
+            """
+            This class mirrors what effectively happens with wrapt.ObjectProxy
+            when snoop is tracing code that uses the wrapt library.  It tries to
+            introspect the code during __new__ and __init__ before the class is
+            in a state where it's internal __dunder methods work properly rather
+            than raising.
+            """
+
+            def __init__(self):
+                # super().__init__() has not yet been called so the class
+                # is in a state where it's __getattr__ method will raise
+                # an exception.
+                cheap_repr(self)
+                self._special = object()
+
+            @property
+            def __class__(self):
+                return self._special.__class__
+
+            def __getattr__(self, name):
+                if name == '_special':
+                    raise ValueError('__init__ has not completed.')
+                return getattr(self._special, name)
+
+        DemonstrateBug()
+
     def test_django_queryset(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
         import django

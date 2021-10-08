@@ -185,7 +185,15 @@ def cheap_repr(x, level=None, target_length=None):
     """
     if level is None:
         level = cheap_repr.max_level
-    x_cls = getattr(x, '__class__', type(x))
+    try:
+        x_cls = getattr(x, '__class__', type(x))
+    except Exception:  # WAT really? yep! i.e. wrapt.ObjectProxy
+        # Otherwise https://github.com/GrahamDumpleton/wrapt/blob/1.13.1/src/wrapt/wrappers.py#L209
+        # causes snooped code to crash during init of this class before it is
+        # in a consistent state for its __getattr__ method to be called. snoop
+        # uses cheap_repr in a tracing hook on every line and does not expect
+        # an exception.
+        return _try_repr(repr, type(x))
     for cls in inspect.getmro(x_cls):
         if cls in suppressed_classes:
             return _basic_but('repr suppressed', x)
