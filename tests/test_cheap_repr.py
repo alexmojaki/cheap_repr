@@ -231,9 +231,9 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_cheap_repr(array('l', range(10)),
                                "array('l', [0, 1, 2, ..., 8, 9])")
 
-    def test_wrapt_objectproxy(self):
+    def test_uninitialized_class_with_getattr(self):
+        """An oversimplified wrapt.ObjectProxy style example."""
 
-        # No need to import wrapt, we recreate a tiny similar scenario.
         class DemonstrateBug(object):
             """
             This class mirrors what effectively happens with wrapt.ObjectProxy
@@ -260,6 +260,13 @@ class TestCheapRepr(TestCaseWithUtils):
                 return getattr(self._special, name)
 
         DemonstrateBug()
+
+    def test_wrapt_objectproxy(self):
+        import wrapt
+        class Uhoh(wrapt.ObjectProxy):
+            def __init__(self):
+                cheap_repr(self)
+        Uhoh()
 
     def test_django_queryset(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.fake_django_settings'
