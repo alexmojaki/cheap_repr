@@ -142,13 +142,23 @@ class TestCheapRepr(TestCaseWithUtils):
     def test_chain_map(self):
         self.assert_usual_repr(ChainMap({1: 2, 3: 4}, dict.fromkeys('abcd')))
 
-        ex = ("ChainMap("
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "..., "
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
-              "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...])"
-              ")")
+        ex = (
+            "ChainMap("
+            "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
+            "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
+            "..., "
+            "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...]), "
+            "OrderedDict([('1', 0), ('2', 0), ('3', 0), ('4', 0), ...])"
+            ")"
+        ) if sys.version_info < (3, 12) else (
+            "ChainMap("
+            "OrderedDict({'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, ...}), "
+            "OrderedDict({'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, ...}), "
+            "..., "
+            "OrderedDict({'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, ...}), "
+            "OrderedDict({'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, ...})"
+            ")"
+        )
         self.assert_cheap_repr(ChainMap(*[OrderedDict.fromkeys('1234567890', 0) for _ in range(10)]),
                                ex)
 
@@ -217,7 +227,9 @@ class TestCheapRepr(TestCaseWithUtils):
         self.assert_usual_repr(OrderedDict())
         self.assert_usual_repr(OrderedDict((x, x * 2) for x in range(3)))
         self.assert_cheap_repr(OrderedDict((x, x * 2) for x in range(10)),
-                               'OrderedDict([(0, 0), (1, 2), (2, 4), (3, 6), ...])')
+                               'OrderedDict([(0, 0), (1, 2), (2, 4), (3, 6), ...])'
+                               if sys.version_info < (3, 12) else
+                               'OrderedDict({0: 0, 1: 2, 2: 4, 3: 6, 4: 8, ...})')
 
     def test_counter(self):
         self.assert_usual_repr(Counter())
@@ -377,7 +389,7 @@ MultiIndex(levels=[Int64Index(dtype=dtype('int64'), length=100), Int64Index(dtyp
                 "CategoricalIndex(categories=Int64Index(dtype=dtype('int64'), "
                 "length=4), ordered=False, dtype='category', length=4)"
             )
-            
+
             if sys.version_info[:2] == (3, 7):
                 expected = """\
 IntervalIndex(closed='right',

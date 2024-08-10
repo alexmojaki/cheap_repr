@@ -23,6 +23,7 @@ SOFTWARE.
 """
 
 import inspect
+import sys
 import warnings
 from array import array
 from collections import defaultdict, deque
@@ -37,7 +38,6 @@ if PY2:
 else:
     from itertools import zip_longest
     from collections.abc import Mapping, Set
-
 
 try:
     from .version import __version__
@@ -579,16 +579,11 @@ def repr_ChainMap(x, helper):
     return helper.repr_iterable(x.maps, type_name(x) + '(', ')', end=True)
 
 
-@try_register_repr('collections', 'OrderedDict')
-@try_register_repr('ordereddict', 'OrderedDict')
-@try_register_repr('backport_collections', 'OrderedDict')
-@maxparts(4)
-def repr_OrderedDict(x, helper):
-    if not x:
-        return repr(x)
-    helper.level += 1
-    return helper.repr_iterable(viewitems(x), type_name(x) + '([', '])', length=len(x))
-
+def _register_ordered_dict(f):
+    f = try_register_repr('collections', 'OrderedDict')(f)
+    f = try_register_repr('ordereddict', 'OrderedDict')(f)
+    f = try_register_repr('backport_collections', 'OrderedDict')(f)
+    return f
 
 @try_register_repr('collections', 'UserDict')
 @try_register_repr('UserDict', 'UserDict')
@@ -599,6 +594,19 @@ def repr_Mapping(x, helper):
         return type_name(x) + '()'
     return '{0}({1})'.format(type_name(x), repr_dict(x, helper))
 
+
+if sys.version_info < (3, 12):
+    @maxparts(4)
+    def repr_OrderedDict(x, helper):
+        if not x:
+            return repr(x)
+        helper.level += 1
+        return helper.repr_iterable(viewitems(x), type_name(x) + '([', '])', length=len(x))
+
+
+    _register_ordered_dict(repr_OrderedDict)
+else:
+    _register_ordered_dict(repr_Mapping)
 
 @try_register_repr('collections', 'Counter')
 @try_register_repr('counter', 'Counter')
@@ -635,7 +643,6 @@ try:
     register_repr(type(copyright))
 except NameError:
     pass
-
 
 if PY3:
     @register_repr(type({}.keys()))
