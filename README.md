@@ -1,7 +1,7 @@
 cheap_repr
 ==========
 
-[![Build Status](https://github.com/alexmojaki/cheap_repr/workflows/Tests/badge.svg?branch=master)](https://github.com/alexmojaki/cheap_repr/actions) [![Coverage Status](https://coveralls.io/repos/github/alexmojaki/cheap_repr/badge.svg?branch=master)](https://coveralls.io/github/alexmojaki/cheap_repr?branch=master) [![Supports Python versions 2.7 and 3.4+, including PyPy](https://img.shields.io/pypi/pyversions/cheap_repr.svg)](https://pypi.python.org/pypi/cheap_repr) [![Join the chat at https://gitter.im/cheap_repr/Lobby](https://badges.gitter.im/cheap_repr/Lobby.svg)](https://gitter.im/cheap_repr/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Tests](https://github.com/alexmojaki/cheap_repr/actions/workflows/pytest.yml/badge.svg)](https://github.com/alexmojaki/cheap_repr/actions/workflows/pytest.yml) [![Coverage Status](https://coveralls.io/repos/github/alexmojaki/cheap_repr/badge.svg?branch=master)](https://coveralls.io/github/alexmojaki/cheap_repr?branch=master) [![Supports Python versions 3.8+](https://img.shields.io/pypi/pyversions/cheap_repr.svg)](https://pypi.python.org/pypi/cheap_repr)
 
 This library provides short, fast, configurable string representations, and an easy API for registering your own. It's an improvement of the standard library module `reprlib` (`repr` in Python 2).
 
