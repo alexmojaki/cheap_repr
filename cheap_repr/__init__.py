@@ -22,9 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from __future__ import annotations
+
 import inspect
 import sys
 import warnings
+import typing as t
 from array import array
 from collections import defaultdict, deque
 from importlib import import_module
@@ -46,6 +49,23 @@ except ImportError:  # pragma: no cover
     __version__ = "???"
 
 
+if t.TYPE_CHECKING:
+    from collections import abc
+
+    T = t.TypeVar('T')
+    try:
+        P = t.ParamSpec('P')
+    except AttributeError:
+        P = t.Any
+
+    class CheapReprFunction(t.Protocol):
+        suppression_threshold: int
+        raise_exceptions: bool
+        max_level: int
+
+        def __call__(x: object, level: t.Optional[int] = None, target_length: t.Optional[int] = None) -> str: ...
+
+
 class ReprSuppressedWarning(Warning):
     """
     This warning is raised when a class is supressed from having a
@@ -64,7 +84,7 @@ class ReprSuppressedWarning(Warning):
 repr_registry = {}
 
 
-def try_register_repr(module_name, class_name):
+def try_register_repr(module_name: str, class_name: str) -> t.Callable[[t.Callable[P, T]], t.Callable[P, T]]:
     """
     This tries to register a repr function for a class that may not exist,
     e.g. if the class is in a third party package that may not be installed.
@@ -91,7 +111,7 @@ def try_register_repr(module_name, class_name):
         return lambda x: x
 
 
-def register_repr(cls):
+def register_repr(cls: t.Type) -> t.Callable[[t.Callable[P, str]], t.Callable[P, str]]:
     """
     Register a repr function for cls. The function must accept two arguments:
     the object to be represented as a string, and an instance of ReprHelper.
@@ -110,12 +130,12 @@ def register_repr(cls):
     return decorator
 
 
-def maxparts(num):
+def maxparts(num: int) -> t.Callable[[t.Callable[P, T]], t.Callable[P, T]]:
     """
     See the maxparts section in the README.
     """
 
-    def decorator(func):
+    def decorator(func: t.Callable[P, T]) -> t.Callable[P, T]:
         func.maxparts = num
         return func
 
@@ -123,7 +143,7 @@ def maxparts(num):
 
 
 @try_register_repr('pandas.core.internals', 'BlockManager')
-def basic_repr(x, *_):
+def basic_repr(x: object, *_: object) -> str:
     return '<%s instance at %#x>' % (type_name(x), id(x))
 
 
@@ -131,7 +151,7 @@ def basic_repr(x, *_):
 @register_repr(type(register_repr))
 @register_repr(type(_ for _ in []))
 @register_repr(type(inspect))
-def normal_repr(x, *_):
+def normal_repr(x: object, *_: object) -> str:
     """
     Register this with a class to indicate that its own
     __repr__ method is already fine. This prevents it from
@@ -161,7 +181,7 @@ def repr_object(x, helper):
     return helper.truncate(s)
 
 
-def find_repr_function(cls):
+def find_repr_function(cls: t.Type) -> t.Callable:
     for cls in inspect.getmro(cls):
         func = repr_registry.get(cls)
         if func:
@@ -177,7 +197,7 @@ def raise_exceptions_from_default_repr():
     repr_object.raise_exceptions = True
 
 
-def cheap_repr(x, level=None, target_length=None):
+def _cheap_repr(x: object, level: t.Optional[int] = None, target_length: t.Optional[int] = None) -> str:
     """
     Return a short, computationally inexpensive string
     representation of x, with approximately up to `level`
@@ -197,10 +217,12 @@ def cheap_repr(x, level=None, target_length=None):
     # Old-style classes in Python 2.
     return _try_repr(repr, x)
 
+cheap_repr: CheapReprFunction = _cheap_repr # type: ignore[assignment]
 
 cheap_repr.suppression_threshold = 300
 cheap_repr.raise_exceptions = False
 cheap_repr.max_level = 3
+
 
 
 def _try_repr(func, x, *args):
@@ -234,7 +256,7 @@ class ReprHelper(object):
         self.func = func
         self.target_length = target_length
 
-    def repr_iterable(self, iterable, left, right, end=False, length=None):
+    def repr_iterable(self, iterable: abc.Sequence, left: str, right: str, end: bool = False, length: t.Optional[int] = None) -> str:
         """
         Produces a comma-separated representation of `iterable`, automatically handling nesting and iterables
         that are too long, surrounded by `left` and `right`.
@@ -307,7 +329,7 @@ class ReprHelper(object):
             s = ', '.join(pieces)
         return left + s + right
 
-    def truncate(self, string, middle='...'):
+    def truncate(self, string: str, middle: str = '...') -> str:
         """
         Returns a version of `string` at most `maxparts` characters long,
         with the middle replaced by `...` if necessary.
